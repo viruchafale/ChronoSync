@@ -1,0 +1,6 @@
+{
+  "identifier": "main",
+  "description": "Local main window with only the recorder command surface.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

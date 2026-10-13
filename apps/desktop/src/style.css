@@ -1,0 +1,61 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color-scheme: light dark;
+  line-height: 1.6;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 62rem;
+  margin: 2rem auto;
+  padding: 0 1.5rem 3rem;
+}
+section {
+  margin: 2rem 0;
+}
+label {
+  display: block;
+  margin: 1rem 0;
+}
+input:not([type="checkbox"]),
+textarea,
+select {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.6rem;
+  font: inherit;
+}
+textarea {
+  min-height: 5rem;
+}
+button {
+  font: inherit;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+  margin: 0.25rem;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+:focus-visible {
+  outline: 3px solid #2694ce;
+  outline-offset: 3px;
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 1rem;
+  background: light-dark(#f1f4f5, #18242a);
+}
+[role="alert"] {
+  border-left: 4px solid #d27632;
+  padding-left: 1rem;
+}
+[role="status"] {
+  font-weight: 700;
+}

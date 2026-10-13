@@ -1,0 +1,15 @@
+node_modules/
+dist/
+target/
+bin/
+coverage/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+*.sqlite*
+.chronosync/
+apps/desktop/src-tauri/gen/
+
+apps/desktop/src-tauri/binaries/
