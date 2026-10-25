@@ -2,6 +2,7 @@ package ipc
 
 import (
 	"bufio"
+	"bytes"
 	"chronosync.local/engine/internal/contract"
 	"chronosync.local/engine/internal/model"
 	"chronosync.local/engine/internal/recorder"
@@ -50,7 +51,7 @@ func Serve(in io.Reader, out io.Writer, r *recorder.Recorder, s storage.Inspecto
 	for scan.Scan() {
 		var req Request
 		resp := Response{ProtocolVersion: 1}
-		if json.Unmarshal(scan.Bytes(), &req) != nil || req.ID == "" || len(req.ID) > 128 || req.ProtocolVersion != 1 {
+		if strictRequest(scan.Bytes(), &req) != nil || req.ID == "" || len(req.ID) > 128 || req.ProtocolVersion != 1 {
 			resp.Error = &RPCError{"PROTOCOL_ERROR", "Invalid v1 request", false}
 		} else {
 			resp.ID = req.ID
@@ -102,7 +103,7 @@ func dispatch(req Request, r *recorder.Recorder, s storage.Inspector, snapshots 
 		return contract.CurrentVersion(), nil
 	case "run.start":
 		var spec model.StartSpec
-		if json.Unmarshal(req.Params, &spec) != nil {
+		if strictRequest(req.Params, &spec) != nil {
 			return nil, errors.New("invalid run specification")
 		}
 		return r.Start(spec)
@@ -192,4 +193,45 @@ func dispatch(req Request, r *recorder.Recorder, s storage.Inspector, snapshots 
 	default:
 		return nil, errors.New("unsupported method")
 	}
+}
+
+// Authority-bearing extensions are not part of v1. Reject unknown fields rather
+// than silently execute a legacy run after discarding a requested restriction.
+func strictRequest(raw []byte, dst any) error {
+	if len(raw) == 0 || len(raw) >= MaxFrame {
+		return errors.New("invalid request")
+	}
+	// Both the envelope and run.start are objects. Reject duplicate keys,
+	// including case aliases, before Go's decoder can silently take the last one.
+	keys := json.NewDecoder(bytes.NewReader(raw))
+	opening, err := keys.Token()
+	if err != nil || opening != json.Delim('{') {
+		return errors.New("invalid request")
+	}
+	seen := map[string]bool{}
+	for keys.More() {
+		token, err := keys.Token()
+		key, ok := token.(string)
+		if err != nil || !ok || seen[strings.ToLower(key)] {
+			return errors.New("invalid request")
+		}
+		seen[strings.ToLower(key)] = true
+		var value json.RawMessage
+		if keys.Decode(&value) != nil {
+			return errors.New("invalid request")
+		}
+	}
+	if _, err := keys.Token(); err != nil {
+		return errors.New("invalid request")
+	}
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(dst); err != nil {
+		return errors.New("invalid request")
+	}
+	var extra any
+	if dec.Decode(&extra) != io.EOF {
+		return errors.New("invalid request")
+	}
+	return nil
 }

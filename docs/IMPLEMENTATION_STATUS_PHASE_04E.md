@@ -1,0 +1,41 @@
+# Phase 4E implementation status — provider and approval trust boundary
+
+As of 2026-10-23. Internal provider boundary, IPC hardening and reference tests implemented and verified. **Trusted approval handler blocked:** the user requires OS-backed authentication, and no reviewed mechanism exists. Positive policy-based launch remains disabled. [Status index](IMPLEMENTATION_STATUS.md).
+
+## Preflight and scope
+
+Reviewed policy/admission code, migration-3 repository and actual revision/audit/recovery behavior, supervisor, Codex version/record paths, recorder consent validation, Rust typed IPC/private bridge and React consent resets. Read Phase 4A–4D evidence, phase plan, security/system/data/testing documents and ADR-0005/0006/0007. Git started clean at ebb9e78 on main. Go 1.26.2 darwin/arm64, Node 22.14.0 and npm 10.9.2 are available. Use existing cached Go/Rust/npm dependencies offline; no new dependency/framework or privileged probe.
+
+The user explicitly selected “Require OS-backed authentication” in response to the approval-strength decision. No existing UI checkbox, local dialog, random principal ID, digest or stored reference meets it. Safe independent provider/validation/test work proceeds; authenticated approval issuance stops at the documented design gate. No public operation or migration is needed for these implemented components. Later schema/public-contract needs require a focused proposal and separate approval.
+
+## Implemented changes
+
+- `engine/internal/policy/registry.go`: narrow RegisteredProvider port; provider contract/identity/implementation/version, exact target and scope, bounded capabilities, generation and revocation. Closed production factory installs only conservative unknown evidence. Zero/nil and unregistered providers refuse. Requests are validated/copied; registry obtains evidence itself, checks provenance, rechecks generation, owns time and sanitizes errors. No provider/plugin registration or caller evidence API. Providers must honor the bounded context; arbitrary in-process malicious code is outside this boundary.
+- `engine/internal/supervisor/policy.go`: diagnostic policy assessment uses the registry. Non-nil policy still returns PolicyError unconditionally before process setup. Nil-policy legacy behavior, Codex version probing and execution are unchanged. No durable receipt consumption.
+- `engine/internal/ipc/server.go`: unknown/duplicate case-equivalent keys and malformed/oversized/trailing JSON are rejected in envelopes and run.start. Unsupported policy/authority cannot silently fall back to legacy execution. Existing protocol 1 fields remain; no new IPC method. Historical query/snapshot parameter parsing is not claimed uniformly hardened.
+- `registry_test.go`, `ipc/trust_test.go`, `storage/approval_trust_test.go`: provider identity/generation/evidence/clock/error tests; forged IPC requests rejected before adapter calls/storage; SQLite reference binding/expiry/duplicate/conflict/one-time/concurrency/restart/privacy tests. Fakes are test-only, not production registrations.
+- [ADR-0008](decisions/ADR-0008-provider-and-approval-trust.md), authority inventory, security decision register, phase plan and current architecture/system/data/testing/changelog/status documents. Historical reports remain unchanged.
+
+## Guarantees and exclusions
+
+Registered code provenance is established by the closed compiled construction path, not by serialized identity fields or cryptographic attestation. The only shipped provider is unknown/advisory; it cannot issue positive enforcement. Existing pure Resolve and admission.Apply remain deterministic domain utilities, not authenticators. Test satisfaction does not certify a platform. A provider generation check is valid only for that assessment; no claim is made about a later launch race or trusted clock under host compromise.
+
+Migration 3 already enforces challenge/reference uniqueness and transaction-assigned revisions/audit. Exact operation/body replay returns a historical receipt; conflict or reused response fails. Binding/epoch/expiry checks and conservative restart recovery remain model semantics. SQLite cannot establish an OS principal, proof authenticity, anti-tamper history or live rollback detection. No new storage code, migration, canonical vector or domain format was necessary.
+
+The future authenticated-handler contract covers engine-created challenge/expiry, exact canonical binding, OS principal and transaction-specific proof, one-time response, cancellation/revocation and restart. It is **design only**. No authentication mechanism, proof retention, new principal schema, key lifecycle or private-input commitment algorithm is selected. Public argv/path metadata must already be non-secret; no universal detector exists. New rejection paths exclude synthetic private canaries from diagnostics/durable records; no raw private input or key is collected by this milestone.
+
+## Actual validation
+
+- Focused offline/cache `go -C engine test -race ./internal/policy ./internal/supervisor ./internal/ipc ./internal/storage ./internal/admission`: passed initial implementation (policy/supervisor/admission cached on the combined run). Duplicate-key hardening was added afterward and is included in final checks below.
+- Final focused run after duplicate-key hardening: passed `GOPROXY=off GOSUMDB=off GOCACHE=/tmp/chronosync-go-cache GOMODCACHE=/tmp/chronosync-go-mod go -C engine test -race ./internal/policy ./internal/supervisor ./internal/ipc ./internal/storage ./internal/admission`. IPC reran; the other unchanged packages reported cached passes. Log: `/tmp/chronosync-phase4e-focused-final.log`.
+- `GOPROXY=off GOSUMDB=off GOCACHE=/tmp/chronosync-go-cache GOMODCACHE=/tmp/chronosync-go-mod make check`: passed Go formatting/vet/race tests/build, Prettier, ESLint, strict TypeScript, 22 Vitest tests in four files, frontend build, documentation checks, schema integration and synthetic recorder/timeline/snapshot/branch/restart integration. Recorder run `9e0735acf4534bdda73c884b086b1df5` completed with 11 events. Existing unchanged Go packages reported cached results; recorder reran. Log: `/tmp/chronosync-phase4e-check.log`.
+- `CARGO_NET_OFFLINE=true GOPROXY=off GOSUMDB=off PATH=/tmp/chronosync-cargo/bin:$PATH RUSTUP_HOME=/tmp/chronosync-rustup CARGO_HOME=/tmp/chronosync-cargo GOCACHE=/tmp/chronosync-go-cache GOMODCACHE=/tmp/chronosync-go-mod make native-check`: passed engine sidecar, Rust formatting, locked Clippy with warnings denied, one real-engine bridge test and release desktop build. Log: `/tmp/chronosync-phase4e-native.log`. Build is not native GUI acceptance.
+- Final `npm run check:docs`, `npm run format:check`, local Markdown target scan and `git diff --check`: passed. Git diff confirms Phase 4–4D reports, admission domain/canonical vectors, migration/repository sources, ConservativeProvider/pure resolver, supervisor refusal tests/process setup, adapters/recorder, Rust/React and dependency lockfiles unchanged. The ignored engine sidecar was rebuilt by native checks. The wire-contract README documents stricter validation without changing wire types.
+
+No actual agent launched by new approval/authority tests. Established portable/native integration targets use synthetic subprocess fixtures. No GUI walkthrough, live model, OS authentication ceremony, backend experiment or remote CI result is claimed.
+
+## Remaining decision and stop condition
+
+Implemented refusal and reference components stop here. To implement trusted approval next, authorize a scoped authentication feasibility review naming the first target OS/version and required OS principal, with transaction/manifest binding, same-user attacker assumptions, freshness/revocation, failure and recovery evidence. This must precede selecting an OS mechanism or adding host/public APIs. Any resulting storage/public-contract changes require their own focused proposal.
+
+Separate review still gates private-input/key management, backend enforcement and object identity, rollback protection and eventual positive launch. Phase 1–3 native GUI acceptance and prior cross-platform/power-loss limitations remain unverified/blocked. No later phase, commit or push is performed by this milestone.
