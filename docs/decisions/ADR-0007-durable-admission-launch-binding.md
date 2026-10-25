@@ -1,5 +1,9 @@
 # ADR-0007: Durable one-use admission and launch binding
 
+## Phase 4E trust prerequisite refinement — 2026-10-23
+
+[ADR-0008](ADR-0008-provider-and-approval-trust.md) implements closed conservative provider registration and IPC rejection without changing canonical/domain/storage contracts. The user explicitly requires OS-backed authentication; no trusted approval issuer or validation producer can be implemented until its platform mechanism and binding are reviewed. Durable references remain unauthenticated. No migration or positive supervisor consumption is authorized.
+
 ## Phase 4D persistence resolution — 2026-10-23
 
 The user explicitly authorizes the repository/migration/atomic claim/recovery milestone while excluding positive launch. Schema was documented in DATA_MODEL before implementation: migration 3 uses an admission aggregate, append-only operation/result history and unique typed-reference rows. Immutable binding and operation envelopes contain the domain's existing references, avoiding speculative provider/workflow tables. Projection hydration replays domain NewBinding/New/Apply; no replacement state machine.

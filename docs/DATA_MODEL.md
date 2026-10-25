@@ -1,5 +1,17 @@
 # Data model
 
+## Phase 4F authentication provenance proposal — not applied
+
+Migration 3 supplies binding/challenge/approval references, uniqueness, revisions and recovery but cannot describe an authenticated issuer or ceremony outcome. The [Phase 4F report](IMPLEMENTATION_STATUS_PHASE_04F.md#6-persistence-and-revocation-proposal--no-migration-applied) proposes additive authentication_attempts and append-only authentication_events, with unique challenge ownership, bounded mechanism/issuer/session metadata, sanitized outcomes and links to exact admission audit revisions. No existing approval is backfilled as authenticated.
+
+A new reviewed repository operation would commit provenance, AcceptApproval and reference consumption atomically; two separate ChangeAdmission/external writes are insufficient. Pending/failed/ambiguous attempts receive explicit durable outcomes without fabricating new domain actions. Existing domain revision order remains authoritative; separate ceremony sequence is explicitly linked, not ordered by caller timestamps. No raw credentials, biometric material, OS proof blobs, private input or keys. Actual encodings/constraints and migration require separate approval; SQLite remains migration 3.
+
+## Phase 4E reference trust review — no migration
+
+SQLite remains migration 3; storage/domain formats and canonical vectors are unchanged. Existing challenge/approval/reference uniqueness plus atomic revision/audit enforce one owner, one accepted response and durable ordering. Approval receipt replay is historical, never a fresh authentication proof. Added tests verify wrong manifest/challenge/epoch, expired approval, duplicate/conflicting responses, concurrent response ownership, restart invalidation and rejected private canaries absent from audit bodies. Existing revocation/claim and corruption/restore tests remain in force.
+
+Provider registrations and assessments are in-memory engine code only; no provider table or capability certification is persisted. Principal/evidence fields remain opaque unauthenticated references. The user requires OS-backed authentication; a future reviewed proof/principal representation might need a focused schema proposal, but no migration is necessary or authorized for this milestone. Do not store raw OS proof, keys, credentials, prompts or private inputs in these references. See [ADR-0008](decisions/ADR-0008-provider-and-approval-trust.md).
+
 ## Phase 4D schema and transaction decision — before migration implementation
 
 The Phase 4D request authorizes this focused persistence slice. Use migration 3 with three admission tables rather than speculative workflow/provider tables. Existing migration 1/2 text/checksums remain unchanged. This section refines the earlier Phase 4B table proposal using actual Phase 4C aggregate semantics.

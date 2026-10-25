@@ -1,5 +1,25 @@
 # Phase 04 — Multi-agent architecture and execution-policy design
 
+## Phase 4G isolated prototype scope and stop boundary
+
+The user authorized a disposable prototype subject to explicit native-factor and dependency/helper/signing/packaging gates. Independent challenge protocol model and tests are implemented outside production. Device-owner factor policy was explicitly approved on 2026-10-24. Native LocalAuthentication/XPC work remains blocked pending dependency/helper/signing/packaging approvals; existing ad-hoc binaries and stdio do not establish the required identity boundary. [Phase 4G report](../IMPLEMENTATION_STATUS_PHASE_04G.md) records concrete proposal and actual evidence. Do not mark the full native experiment complete or substitute mocks for the missing guarantee.
+
+No production admission/store/supervisor/Codex/UI/IPC changes, keys, migrations or sandbox work. The approved prototype policy is macOS device-owner authentication, including supported password/Apple Watch factors; no weaker non-OS fallback is authorized. Stop at the documented boundary until approvals arrive.
+
+## Phase 4F authorized macOS feasibility review
+
+Research/design only: audit current trust boundaries; compare Apple-documented authentication options and API availability; document attacker limits, native ownership, exact challenge protocol, persistence proposal, test matrix and decision gates. Full deliverable: [Phase 4F feasibility report](../IMPLEMENTATION_STATUS_PHASE_04F.md). Preserve all earlier reports and existing Phase 4E workspace changes.
+
+OS-backed authentication remains mandatory. Mechanism remains unselected for production; LAContext in the trusted Rust host is a conditional isolated-experiment candidate, with dedicated authenticated engine transport still unresolved. No authentication integration, new public command, migration, keys, sandbox or positive admission. Completion requires source-backed design, accurately scoped compile-only evidence, refusal/document checks and unchanged-runtime inventory, not a claim of tested native authentication. Stop at report/design updates.
+
+## Phase 4E authorized trust-boundary milestone
+
+Scope: verified authority inventory; closed conservative provider registration and freshness/revocation checks; rejection of forged IPC authority; durable approval-reference tests; security decision register and separate report. No public contract, migration, OS backend or positive launch. Production provider remains conservative; the supervisor refuses unconditionally.
+
+The user selected required OS-backed authentication. No existing mechanism establishes that guarantee, so a trusted approval handler is blocked pending target/mechanism and transaction-binding review. Reference sequencing is implemented/tested without pretending it authenticates a principal. No key management or private commitment algorithm is selected. See [ADR-0008](../decisions/ADR-0008-provider-and-approval-trust.md) and [Phase 4E status](../IMPLEMENTATION_STATUS_PHASE_04E.md).
+
+Verification passed: focused race tests, make check, make native-check, Markdown/link checks and historical-report/schema/dependency diff inspection. Actual results are recorded in the separate report. Stop after these components; Phase 1–3 GUI gates remain open.
+
 ## Phase 4D authorized repository milestone
 
 The subsequent request authorizes focused admission persistence and migration 3, atomic claims/audit/idempotency and conservative recovery. Schema and privacy/restoration limits were documented before migration implementation. Three tables persist the bounded Phase 4C aggregate and reference uniqueness; transitions replay the unchanged domain. No positive provider, supervisor consumer, process launch, UI or public contract is added.
@@ -118,6 +138,12 @@ Design acceptance only: coherent audit/design/decision register and passing appl
 Updated existing documents rather than adding duplicate SECURITY/TESTING files. ADR-0005 records workflow/evaluation decisions; ADR-0006 records policy boundary and deferred backend selection. Historical conflicting roadmap text is explicitly labeled superseded; phase evidence and outstanding GUI/fault gates are retained.
 
 ## 16. Status
+
+Phase 4G protocol model: implemented/tested; native authentication and actual peer verification: `BLOCKED` on native dependency/packaging/signing approvals; device-owner factor policy approved 2026-10-24. Full native experiment is not complete.
+
+Phase 4F feasibility/design: `COMPLETE`; production mechanism `UNSELECTED`. Native authentication, factor/transport/packaging acceptance and provenance migration remain gated. See the [Phase 4F report](../IMPLEMENTATION_STATUS_PHASE_04F.md).
+
+Phase 4E provider registry, IPC rejection and reference-state tests: `COMPLETE` with portable/native checks passed. Trusted approval handler: `BLOCKED` on a reviewed OS-backed authentication mechanism required by the user. No positive launch. See the [Phase 4E report](../IMPLEMENTATION_STATUS_PHASE_04E.md).
 
 Phase 4D durable admission repository, migration 3, atomic claims/audit and conservative recovery: `COMPLETE`; focused race tests, `make check` and `make native-check` passed. Evidence, restoration limits and remaining trust gates are recorded in the separate [Phase 4D report](../IMPLEMENTATION_STATUS_PHASE_04D.md). No execution integration or positive admission is enabled.
 

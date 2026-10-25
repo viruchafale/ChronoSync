@@ -22,7 +22,8 @@
     "engine:sidecar": "node scripts/sidecar.mjs",
     "test:recorder": "node scripts/recorder-integration.mjs",
     "test:live": "node scripts/recorder-integration.mjs --live",
-    "desktop:bundle:macos": "cd apps/desktop && tauri build --bundles app --config '{\"bundle\":{\"active\":true}}'"
+    "desktop:bundle:macos": "cd apps/desktop && tauri build --bundles app --config '{\"bundle\":{\"active\":true}}'",
+    "desktop:bundle:dmg": "cd apps/desktop && tauri build --bundles dmg --config '{\"bundle\":{\"active\":true}}'"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",

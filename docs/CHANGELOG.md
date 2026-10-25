@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-10-25 — Submission-build macOS DMG
+
+Added a repeatable Tauri DMG command and macOS release guide. Produced and verified a real ARM64 DMG, inspected its app and bundled engine from a read-only mount, and launch-verified the native UI plus packaged-engine history handshake. The artifact remains a local unsigned `0.0.0` build; Developer ID signing, notarization, stapling, clean-machine Gatekeeper validation and final version selection remain distribution blockers. No runtime feature, authentication, admission, sandbox, commit, push or upload.
+
+## 2026-10-23 — Phase 4G isolated protocol experiment
+
+Added a standard-library-only standalone challenge model and race tests, with fixed synthetic manifest, bounded canonical frames, session/expiry/replay checks and no production integration. Inspected actual local code-signing metadata and recorded native binding/transport/packaging approval gates. No native authentication or peer identity verification is claimed. Historical reports preserved.
+
+## 2026-10-23 — Phase 4F authentication feasibility
+
+Added Apple-sourced macOS mechanism comparison, threat/authority analysis, native ownership and challenge protocol proposals, authentication provenance schema proposal and layered test matrix. Compile-only public SDK check performed without authentication calls. Production mechanism remains unselected pending native evidence and explicit factor/trust decisions. Existing Phase 4E code and historical reports preserved; no runtime integration, migration or public command.
+
+## 2026-10-23 — Phase 4E trust boundary
+
+Added closed engine-owned capability-provider registration, identity/target/scope/generation validation and conservative supervisor assessment. Hardened Go IPC envelopes/run.start against unsupported authority fields and ambiguous duplicate keys. Added provider, IPC and durable approval-reference tests; documented verified authority inventory and security decisions. User requires OS-backed authentication; trusted approval handler remains blocked. No positive launch, migration, public command, UI/backend or new dependency.
+
 ## 2026-10-23 — Phase 4D durable admission repository
 
 - Added migration 3 for admission aggregates, immutable operation/audit results and unique challenge/approval/claim/revocation references; prior migrations/history preserved.

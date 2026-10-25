@@ -1,5 +1,25 @@
 # Testing strategy
 
+## Phase 4G independent protocol tests
+
+Run `go -C experiments/macos-auth-protocol test -race -count=1 ./...` and `go -C experiments/macos-auth-protocol vet ./...` with offline dependencies and the documented temporary cache. This separate module is not automatically part of make check. Tests cover independently calculated canonical vectors, bounded challenges, malformed/forged/canonical-only frames, synthetic wrong-peer/nil-verifier refusal, session/manifest mismatch, expiry, cancellation, disconnect/restart, late callback, concurrent one-time completion and absence of production imports/exported entry points.
+
+Successful verifier behavior is synthetic test data, not macOS identity evidence. Native APIs, packaged peer verification, interactive factor selection and native accessibility remain unimplemented/unverified. Actual environment, code-signing observations and approval blockers are in the [Phase 4G report](IMPLEMENTATION_STATUS_PHASE_04G.md). No native lockout or security-setting experiments.
+
+## Phase 4F feasibility evidence and native acceptance plan
+
+Research, read-only SDK/source inspection and a compile-only API surface check are distinct from successful authentication. The [Phase 4F matrix](IMPLEMENTATION_STATUS_PHASE_04F.md#8-test-matrix-and-evidence-classification) separates deterministic tuple/revision/replay tests, signed native-channel integration, interactive authentication/accessibility and unestablished attacker guarantees.
+
+A future isolated experiment must cover fresh success, cancellation/denial, unavailable/locked-out states without destructive account experiments, expiry/reuse/mismatch, concurrent responses/revocation, restart/lost acknowledgement, forged peer/result, stopped backup/stale epoch and native accessibility. No production fake authenticator or positive launch is permitted. Current-phase checks validate unchanged conservative refusal and documents only; no native authentication prompt or OS security experiment is claimed. Prior Phase 4E broad build results are not rerun evidence.
+
+## Phase 4E trust-boundary checks
+
+New policy registry tests use same-package _test.go fakes unavailable to production construction: unknown provider, identity/implementation/contract/version mismatch, target/platform/scope/source mismatch, revocation generation changes, provider errors, unverified/expired/observed/configuration-only/unknown evidence, malformed/oversized requests, cancellation, clock regression and detached inputs/results. Production registry tests assert conservative refusal and no verified enforcement. Existing supervisor refusal tests are preserved.
+
+New IPC tests reject forged verification, effective policy, provider, approval/time, admission/token/checks and unsupported policy fields before any adapter call or persisted run. They also test nonexistent authority commands, malformed/oversized bodies, duplicate/case-alias keys and sanitized diagnostics. No agent is launched by approval/authority tests.
+
+New SQLite tests exercise unauthenticated reference invariants: changed manifest/challenge/epoch, expiry, replay/conflict, one-time response, challenge uniqueness, concurrent responses, revocation and restart. Existing race/recovery/corruption/restoration suites are rerun. Synthetic private canaries in rejected requests must not reach durable operation bodies or diagnostics. No OS authentication test is claimed: a backend/ceremony is not implemented. Actual results are recorded in [Phase 4E status](IMPLEMENTATION_STATUS_PHASE_04E.md).
+
 ## Phase 4D storage tests
 
 Temporary SQLite tests exercise actual Phase 4C bindings/transitions, with no agent launches. They cover create/reopen, exact and conflicting retries, stale revisions, eight concurrent claim callers, revocation/claim and recovery/claim ordering, atomic audit/state/reference writes, before-commit/audit failures and simulated lost post-commit results, domain failure, writer and actual SQLite contention, cancelled/expired contexts, unknown versions, corrupt digests/projections, missing audit/reference rows, FK/claim/audit uniqueness, fresh epochs and stopped-copy restoration.

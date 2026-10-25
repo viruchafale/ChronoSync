@@ -1,5 +1,25 @@
 # System design
 
+## Phase 4G experimental coordinator — no production wiring
+
+A standalone module under experiments/macos-auth-protocol models a single synthetic display-only challenge and terminal observation. Coordinator-generated IDs, manifest digest, epoch/native session, policy label and bounded deadline form the exact tuple. Canonical messages are bounded to 4096 bytes; replay/mismatch/malformed/late/duplicate callbacks refuse. An out-of-band verifier seam is test-only and has no native implementation. No production API or data format changes.
+
+The [Phase 4G report](IMPLEMENTATION_STATUS_PHASE_04G.md) supplies the pending native interface and fixture/dependency/signing proposal. A future native host would receive the OS callback; an isolated coordinator would validate the peer and tuple. Current production stdio and React do not carry authentication results. Native binding/packaging approval and explicit factor choice precede implementation.
+
+## Phase 4F proposed authentication ownership
+
+The [Phase 4F report](IMPLEMENTATION_STATUS_PHASE_04F.md) compares Rust native host, engine-owned native interoperability and a narrow helper. Conditional smallest experiment: Rust host owns fresh LocalAuthentication context and native manifest display; Go owns canonical challenge, expiry/revocation checks and one-time durable commit. The renderer requests intent only. A dedicated mutually authenticated native/engine channel must be proven; no authoritative result may be sent through a generic renderer-callable command. Current synchronous bridge timeouts are not an interactive ceremony design.
+
+Proposed tuple includes protocol, admission/challenge/binding/epoch/native-session/attempt IDs, policy and deadline. Reject changed, cancelled, expired, revoked, ambiguous or replayed results. Exact committed retries may reconcile a historical receipt only. Restart/channel loss invalidates pending tuples. Proposed authentication provenance and admission approval commit together in one repository transaction. No LA API, public method, channel, callback consumer or migration is implemented. Mechanism selection awaits native evidence; every policy-controlled launch still refuses.
+
+## Phase 4E provider and approval boundary
+
+ProviderRegistry in internal/policy has a closed production constructor and no registration or serialized evidence input. RegisteredProvider supplies versioned identity, exact target/scope, bounded capabilities and a current revocable generation. Registry.Resolve validates intent, takes detached copies, acquires evidence, matches provenance, rechecks generation and uses engine time for the unchanged pure resolver. The only production implementation wraps ConservativeProvider; it reports unknown/advisory. Registry errors are static typed ProviderError codes. Supervisor diagnostic assessment now uses the registry; unconditional pre-process PolicyError refusal remains.
+
+Go IPC envelope/run.start decoding now rejects unknown fields, duplicate case-equivalent keys, trailing bodies, malformed types and oversized inputs. Existing frame limit and recorder semantic validation remain. No new protocol command or field exists, and valid legacy requests remain compatible. Rust and React are unchanged. Other historical query decoders are not claimed hardened by this change.
+
+OS-backed authentication is an explicit user requirement. No trusted approval handler, external_validation producer or positive readiness coordinator exists. Existing admission.New/Apply and migration 3 remain unchanged. The proposed authenticated challenge/response/cancel/revoke/restart contract and exact decision gate are in [ADR-0008](decisions/ADR-0008-provider-and-approval-trust.md). Strong authentication, private-input commitments and rollback protection are not implemented; synthetic references are never promoted to authority.
+
 ## Phase 4D implemented admission repository — no execution integration
 
 Storage now implements AdmissionRepository with CreateAdmission, ChangeAdmission, GetAdmission, AdmissionEpoch and RecoverAdmissions. Records are internal only; no IPC/UI command or supervisor consumer was added. Domain NewBinding/New/Apply remain unchanged and are the sole canonicalization/transition authority. Storage version 1 is separate from domain version 1; SQLite advances to migration 3.

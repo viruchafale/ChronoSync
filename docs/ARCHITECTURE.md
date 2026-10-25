@@ -1,5 +1,13 @@
 # Architecture
 
+## Phase 4F authentication research boundary
+
+[Phase 4F](IMPLEMENTATION_STATUS_PHASE_04F.md) proposes native-host OS authentication with engine-owned challenge/commit only as a conditional experiment. A private mutually authenticated transport and independently rendered native manifest are prerequisites. No runtime architecture is changed, mechanism selected for production, migration applied or positive launch enabled.
+
+## Phase 4E internal authority boundary
+
+The policy package now owns a closed compiled-provider registry; supervisor policy diagnostics use it while every non-nil policy still refuses. IPC envelope/run.start validation rejects unsupported authority fields before legacy recording. Storage remains a consistency boundary, not an authenticator. OS-backed approval is required by the user and blocked on a reviewed mechanism. No backend, migration, UI/public command or positive admission is introduced. See [ADR-0008](decisions/ADR-0008-provider-and-approval-trust.md).
+
 ## Phase 4D implemented storage adapter
 
 The existing SQLite Store now implements AdmissionRepository internally. Storage owns versioned JSON envelopes, revision/idempotency/uniqueness constraints and recovery; admission remains a pure domain package. Startup Open performs admission validation/recovery after migrations, but recorder/adapter/supervisor do not consume or create admissions. Migration 3 is the only format advancement; engine/protocol/event/run/manifest/policy/domain versions and public capabilities are unchanged. See [Phase 4D status](IMPLEMENTATION_STATUS_PHASE_04D.md).
