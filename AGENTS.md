@@ -1,6 +1,6 @@
 # Engineering instructions
 
-ChronoSync is implementing the explicitly authorized Phase 4D admission repository, focused migration, atomic claim/audit and recovery milestone. Positive launch, process-path integration, UI/public contracts, capability backends and authentication/key mechanisms remain excluded. Documentation is part of done. Do not start another phase without user authorization. Read the current status; this file is not evidence of completed features.
+ChronoSync is working on the explicitly authorized Phase 4G isolated macOS authentication prototype. Independent disposable protocol tests are allowed. Native authentication policy requires explicit factor selection; new dependencies/helpers/signing/entitlements/packaging require approval before introduction. Preserve current Phase 4E/F work and production provider/admission/supervisor/agent behavior. No positive launch, production authentication integration, migrations, public IPC or key management. Documentation and honest blocked/unverified evidence are part of done. Do not start another phase without authorization.
 
 ## Before implementation
 
