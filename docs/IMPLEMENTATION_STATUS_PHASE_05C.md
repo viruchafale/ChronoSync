@@ -1,0 +1,5 @@
+# Phase 5C implementation status
+
+Fixture lifecycle and persistence are implemented. `internal/fixtures` validates Phase 5A/5B bytes, stores immutable content-addressed files in private application data, lists and inspects supported interaction metadata, handles duplicates deterministically, verifies every load, returns consent-gated export copies and deletes only generated digest identities with explicit consent. Corrupted regular entries remain visible as damaged inventory records; inspection, export and evaluation refuse them, while explicit confirmed deletion remains available.
+
+Focused race tests pass for create-from-run, success-only evaluation handoff, import, duplicate, list, inspection, detached export, restart, deletion, permissions/path refusal, partial temporary files, unsupported formats and corruption. SQLite remains migration 3 and existing fixture bytes are unchanged. See the [Phase 5C plan](PHASE5C_IMPLEMENTATION_PLAN.md) and [Phase 5 completion report](PHASE5_COMPLETION_REPORT.md).

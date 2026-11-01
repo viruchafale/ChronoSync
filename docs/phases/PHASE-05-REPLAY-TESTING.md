@@ -22,11 +22,15 @@ Capture/replay transport port wraps supported tools/adapters. Fixture runner val
 
 ## 6. Ordered implementation tasks
 
-1. Inventory controllable transports and document provider/MCP/proxy bypass cases.
-2. Implement consent scopes and pre-storage request/response redaction; mark nonreplayable records.
-3. Define canonical matching with method/target/body/sequence/scope, repeated request handling and ambiguity errors.
-4. Implement strict offline replay with no automatic live fallback.
-5. Define portable fixture schema/provenance/redaction/compatibility and bounded safe importer.
+Phase 5A completed the safe fixture foundation before transport capture: source inventory, canonical bounded fingerprint fixtures, strict import, isolated comparison and regression handoff. The detailed pre-source plan and evidence are in [PHASE5_IMPLEMENTATION_PLAN.md](../PHASE5_IMPLEMENTATION_PLAN.md) and [PHASE5A_IMPLEMENTATION_REPORT.md](../PHASE5A_IMPLEMENTATION_REPORT.md).
+
+Phase 5B completes the next isolated experiment: a dependency-light synthetic transport port, separate strict fixture, pre-fingerprint refusal/redaction contract, immutable entries, explicit occurrence matching and structural network-denial tests. See the [Phase 5B plan](../PHASE5B_IMPLEMENTATION_PLAN.md) and [implementation report](../PHASE5B_IMPLEMENTATION_REPORT.md). This is not real transport capture or provider replay.
+
+1. Inventory controllable transports and document provider/MCP/proxy bypass cases. Initial inventory complete; no controlled provider transport exists.
+2. Implement consent scopes and pre-storage request/response redaction; mark nonreplayable records. Phase 5B implements redaction/refusal for synthetic allowlisted metadata only; consent and production capture remain open.
+3. Define canonical matching with method/target/body/sequence/scope, repeated request handling and ambiguity errors. Phase 5B verifies identity/operation fingerprints and occurrences without bodies or real targets.
+4. Implement strict offline replay with no automatic live fallback. Phase 5B proves structural isolation for the synthetic package; OS-level denial and production runner remain open.
+5. Define portable fixture schema/provenance/redaction/compatibility and bounded safe importer. Phase 5B adds a separate experimental internal format; promotion criteria remain open.
 6. Implement export pinning/hash validation and inspect-before-share workflow.
 7. Add assertion runner and comparison reports for events, files and interactions.
 8. Add CI command for offline fixtures and tests with network actively denied.
@@ -74,6 +78,6 @@ Update this plan's task evidence and status, ../IMPLEMENTATION_STATUS.md, ../CHA
 
 ## 16. Status
 
-`NOT_STARTED`
+`COMPLETE` for Phase 5A–5F supported controlled fixture workflow. See the [consolidated completion report](../PHASE5_COMPLETION_REPORT.md).
 
-No implementation or acceptance tests for this phase have been completed. Await authorization after preceding phase review.
+Phase 5A implements command-completion fingerprint fixtures; 5B adds the isolated synthetic matcher; 5C adds immutable private lifecycle storage; 5D adds unified evaluation; 5E adds typed desktop controls and native consent; 5F verifies the disposable workflow and restart. Phase 5 still does not execute historical commands, call providers, restore workspaces or claim whole-run/LLM determinism. Phase 6 requires separate authorization.
