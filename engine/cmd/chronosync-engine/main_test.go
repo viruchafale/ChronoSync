@@ -20,7 +20,7 @@ func TestVersion(t *testing.T) {
 	if err := json.Unmarshal(out.Bytes(), &result); err != nil {
 		t.Fatal(err)
 	}
-	if result.ProtocolVersion != 1 || len(result.Capabilities) != 5 || result.Capabilities[0] != "version" {
+	if result.ProtocolVersion != 1 || len(result.Capabilities) != 8 || result.Capabilities[0] != "version" || result.Capabilities[7] != "benchmark-governance-v1" {
 		t.Fatalf("unsupported capability claim: %+v", result)
 	}
 }

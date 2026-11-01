@@ -31,3 +31,42 @@ export const snapshotAPI: import("../../../contracts/snapshot").SnapshotAPI = {
     desktop("snapshot_materialize", { snapshotId, branch, consent }),
   inventory: () => desktop("object_inventory"),
 };
+
+export const replayAPI: import("../../../contracts/replay").ReplayAPI = {
+  eligibility: (runId) => desktop("fixture_eligibility", { runId }),
+  create: (runId) => desktop("fixture_create", { runId }),
+  importFixture: () => desktop("fixture_import"),
+  list: () => desktop("fixture_list"),
+  inspect: (id) => desktop("fixture_inspect", { id }),
+  exportFixture: (id) => desktop("fixture_export", { id }),
+  deleteFixture: (id) => desktop("fixture_delete", { id }),
+  evaluate: (regressionId, transportId, plan) =>
+    desktop("replay_evaluate", { regressionId, transportId, plan }),
+};
+
+export const analysisAPI: import("../../../contracts/analysis").AnalysisAPI = {
+  compare: (runIds, policy) => desktop("analysis_compare", { runIds, policy }),
+  reports: () => desktop("analysis_report_list"),
+  report: (id) => desktop("analysis_report_get", { id }),
+  reevaluate: (id, policy) =>
+    desktop("analysis_report_reevaluate", { id, policy }),
+};
+
+export const governanceAPI: import("../../../contracts/governance").GovernanceAPI =
+  {
+    create: (spec) => desktop("benchmark_create", { spec }),
+    importDataset: () => desktop("benchmark_import"),
+    list: () => desktop("benchmark_list"),
+    get: (id) => desktop("benchmark_get", { id }),
+    exportDataset: (id) => desktop("benchmark_export", { id }),
+    compare: (baselineId, candidateId) =>
+      desktop("benchmark_compare", { baselineId, candidateId }),
+    evaluate: (id, policy, parentLineageId) =>
+      desktop("benchmark_evaluate", { id, policy, parentLineageId }),
+    lineages: () => desktop("lineage_list"),
+    lineage: (id) => desktop("lineage_get", { id }),
+    setRetention: (kind, id, state, policy, reason) =>
+      desktop("retention_set", { kind, id, state, policy, reason }),
+    audit: () => desktop("governance_audit"),
+    deleteObject: (kind, id) => desktop("governance_delete", { kind, id }),
+  };

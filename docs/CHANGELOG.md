@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-10-31 — Phase 6A–6F observable determinism analysis
+
+- Added versioned hash-only observations over stored event/snapshot evidence with explicit missing and unsupported dimensions.
+- Added bounded repeated experiments, aligned divergence findings, first-divergence navigation and transparent agreement metrics without causal claims.
+- Added explicit versioned evaluation policies, append-only integrity-tagged private reports, restart history and new-report reevaluation without a SQL migration.
+- Added engine 0.5.0 `determinism-analysis-v1`, typed Rust/TypeScript boundaries and a working React analysis/history interface.
+- Added ten requested synthetic evidence scenarios plus real stored-history IPC/restart and component tests. No provider, command, agent rerun, authority change, dependency or DMG rebuild.
+
+## 2026-10-31 — Phase 5C–5F fixture lifecycle, unified evaluation and desktop workflow
+
+- Added immutable private content-addressed fixture persistence, validation, inspection, deterministic duplicate import, export and deletion without a SQL migration.
+- Added fresh-state unified synthetic transport/regression evaluation with typed failures, detailed mismatches, cancellation/timeout and stable results.
+- Added engine 0.4.0 `replay-fixtures-v1` IPC, official Tauri native dialogs/confirmations and working React fixture/evaluation controls.
+- Added disposable workflow/restart/corruption tests and resolved the incomplete temporary Rust toolchain with a project-scoped complete installation.
+- Preserved Phase 5A/5B bytes, event/snapshot/database formats, Phase 1–4 behavior and the submitted DMG.
+
+## 2026-10-30 — Phase 5B synthetic transport contract
+
+- Added a dependency-light synthetic transport port with versioned request/response fingerprints, immutable recordings and typed match outcomes.
+- Added a separate strict canonical experimental fixture, explicit repeated-request occurrence semantics and no live fallback.
+- Added mutation, redaction/refusal, malformed/tampered fixture, cancellation/reset and structural network/launcher dependency tests.
+- Preserved Phase 5A fixture v1, event/storage/protocol schemas, production launch paths and the submitted DMG.
+
+## 2026-10-28 — Phase 5A replay and regression foundation
+
+Added a backend-only canonical fixture/export/import/evaluation package for inert `command.completed` fingerprints. Strict validation, typed failures, mismatch diagnostics, cancellation, unsupported handling and success-only regression bytes are covered with real temporary SQLite history and controlled evaluators. No raw command/output fixture fields, subprocess/provider/network call, live fallback, migration, IPC/UI, Phase 4 authority change, dependency or DMG modification.
+
 ## 2026-10-25 — Submission-build macOS DMG
 
 Added a repeatable Tauri DMG command and macOS release guide. Produced and verified a real ARM64 DMG, inspected its app and bundled engine from a read-only mount, and launch-verified the native UI plus packaged-engine history handshake. The artifact remains a local unsigned `0.0.0` build; Developer ID signing, notarization, stapling, clean-machine Gatekeeper validation and final version selection remain distribution blockers. No runtime feature, authentication, admission, sandbox, commit, push or upload.
@@ -97,3 +124,11 @@ Added closed engine-owned capability-provider registration, identity/target/scop
 - Added interrupted-operation recovery and retained temp/orphan diagnostics; no destructive GC or arbitrary destination cleanup.
 - Connected typed Go/Rust/TypeScript operations and minimal snapshot controls; added manifest/object/migration/capture/restore/branch/recovery/concurrency/IPC/native-bridge/UI tests and three measured workloads.
 - Portable/native checks pass; native-window acceptance and real filesystem fault guarantees remain unverified. No Phase 4, live model call, commit or publication.
+
+## 2026-10-31 — Phase 7A–7F evidence retention and benchmark governance
+
+- Added canonical versioned benchmark datasets with resolved Phase 6 provenance, content integrity, strict imports and explicit limitations.
+- Added exact/compatible-extension/incompatible/unsupported version comparison with added, missing and changed case reporting.
+- Added immutable policy/dataset evaluation lineage, append-only retention, bounded accounting, damage/reference audit and confirmed non-cascading deletion.
+- Added engine 0.6.0 `benchmark-governance-v1`, typed Rust/TypeScript boundaries and a working React governance interface.
+- Added race/restart/corruption/concurrency/reference-refusal tests and ADR-0012 without a SQLite migration, provider call, command rerun, admission change or DMG rebuild.

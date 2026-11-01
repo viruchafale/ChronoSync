@@ -1,5 +1,23 @@
 # Architecture
 
+## Completed Phase 6 evidence-analysis path
+
+`internal/analysis` reads integrity-checked stored history and snapshot metadata through narrow ports, hashes supported raw fields in memory, and produces versioned observations with explicit gaps. Its comparison/experiment/policy domain has no adapter, provider, network, supervisor, command launcher, restore or admission dependency. Canonical integrity-tagged reports live under private application data at `analysis/v1/reports`; no SQLite migration or history rewrite occurs.
+
+Engine 0.5.0 exposes additive `determinism-analysis-v1` methods. Tauri forwards typed values without a new permission, and React renders actual aligned evidence, first divergence, thresholds and historical reports. Per-run sequence is not promoted to cross-run causality. See [ADR-0011](decisions/ADR-0011-determinism-evidence-and-report-persistence.md).
+
+## Completed Phase 5 fixture and evaluation path
+
+`internal/fixtures` owns immutable private fixture files and derives metadata through the strict Phase 5A/5B loaders. `internal/replay/unified` creates a fresh synthetic matcher per evaluation and feeds inert caller-supplied actual fingerprints into the Phase 5A comparator. Engine 0.4.0 exposes additive `replay-fixtures-v1` methods over bounded private stdio. The Tauri host owns native file selection and export/delete confirmation; React receives typed metadata/results and no filesystem path. No component connects replay to providers, networking, supervisors or Phase 4 authorization. See [ADR-0010](decisions/ADR-0010-fixture-lifecycle-and-native-consent.md).
+
+## Phase 5B synthetic transport boundary
+
+`internal/replay/transport` is a separate dependency-light experiment. It accepts bounded structured synthetic values, applies the existing redactor, fingerprints requests, stores sanitized response metadata behind references, and matches explicit occurrences in memory. Its production dependency graph has no storage, networking, provider adapter, supervisor, subprocess launcher, IPC or UI path. It does not change or import Phase 5A fixture v1; this separation preserves fixture compatibility and avoids inheriting SQLite's unrelated transitive dependencies.
+
+## Phase 5A replay boundary
+
+`internal/replay` is a read-only consumer of integrity-checked history. It exports canonical command-completion fingerprint fixtures and evaluates them through a narrow controlled interface. Raw historical command/output text, providers, networking, supervisor/process launch, snapshots, IPC/UI and Phase 4 authorization are outside the package boundary. See [ADR-0009](decisions/ADR-0009-replay-fixture-foundation.md).
+
 ## Phase 4F authentication research boundary
 
 [Phase 4F](IMPLEMENTATION_STATUS_PHASE_04F.md) proposes native-host OS authentication with engine-owned challenge/commit only as a conditional experiment. A private mutually authenticated transport and independently rendered native manifest are prerequisites. No runtime architecture is changed, mechanism selected for production, migration applied or positive launch enabled.
@@ -112,3 +130,9 @@ See [ADR](decisions/ADR-0001-initial-architecture.md), [wire contracts](../contr
 - React `App.tsx` / `api.ts`: explicit consent, start/cancel, persisted runs, ordered events and text-only details.
 
 The sidecar is built before Tauri dev/build using scripts/sidecar.mjs and packaged as a resource. @tauri-apps/api supplies typed frontend invoke; Testing Library/jsdom exercise UI behavior without a real provider. serde/serde_json implement the Rust wire boundary. These dependencies serve the existing stack rather than introducing another runtime/framework. Cargo.lock is now generated. The Rust bridge has a real-engine test; native GUI automation still lacks evidence.
+
+## Completed Phase 7 governance path
+
+`internal/governance` consumes the existing Phase 6 report repository through a narrow port and owns canonical benchmark datasets, explicit compatibility, immutable reevaluation lineage, append-only retention, bounded accounting, reference audit and non-cascading deletion. Private files live under `governance/v1`; no SQLite migration or Phase 5/6 format rewrite occurs.
+
+Engine 0.6.0 exposes additive `benchmark-governance-v1` methods. Tauri owns file selection and export/deletion confirmation; React receives typed identities and results, never private paths. Governance source directly imports only the analysis/model domain plus the Go standard library and contains no provider, adapter, network client, process launcher, supervisor, admission or approval call. Its existing analysis/storage dependency closure is broader, so this is code-boundary evidence rather than OS-level isolation. See [ADR-0012](decisions/ADR-0012-evidence-retention-and-benchmark-governance.md).

@@ -3,7 +3,10 @@ package ipc
 import (
 	"bufio"
 	"bytes"
+	"chronosync.local/engine/internal/analysis"
 	"chronosync.local/engine/internal/contract"
+	"chronosync.local/engine/internal/fixtures"
+	"chronosync.local/engine/internal/governance"
 	"chronosync.local/engine/internal/model"
 	"chronosync.local/engine/internal/recorder"
 	"chronosync.local/engine/internal/snapshot"
@@ -16,7 +19,14 @@ import (
 	"strings"
 )
 
-const MaxFrame = 1024 * 1024
+const MaxFrame = 4 * 1024 * 1024
+
+type Services struct {
+	Snapshots  *snapshot.Service
+	Fixtures   *fixtures.Service
+	Analysis   *analysis.Service
+	Governance *governance.Service
+}
 
 type Request struct {
 	ProtocolVersion int             `json:"protocol_version"`
@@ -43,6 +53,14 @@ type Page struct {
 }
 
 func Serve(in io.Reader, out io.Writer, r *recorder.Recorder, s storage.Inspector, snapshots ...*snapshot.Service) error {
+	services := Services{}
+	if len(snapshots) > 0 {
+		services.Snapshots = snapshots[0]
+	}
+	return ServeWithServices(in, out, r, s, services)
+}
+
+func ServeWithServices(in io.Reader, out io.Writer, r *recorder.Recorder, s storage.Inspector, services Services) error {
 	defer r.Close()
 	scan := bufio.NewScanner(in)
 	scan.Buffer(make([]byte, 4096), MaxFrame)
@@ -59,7 +77,7 @@ func Serve(in io.Reader, out io.Writer, r *recorder.Recorder, s storage.Inspecto
 			if !hello && req.Method != "hello" {
 				err = errors.New("hello required before requests")
 			} else {
-				resp.Result, err = dispatch(req, r, s, snapshots...)
+				resp.Result, err = dispatch(req, r, s, services)
 				if err == nil && req.Method == "hello" {
 					hello = true
 				}
@@ -76,6 +94,21 @@ func Serve(in io.Reader, out io.Writer, r *recorder.Recorder, s storage.Inspecto
 					resp.Error.Code = storageError.Code
 					resp.Error.Retryable = storageError.Code == "STORE_BUSY"
 				}
+				var fixtureError *fixtures.Error
+				if errors.As(err, &fixtureError) {
+					resp.Error.Code = fixtureError.Code
+					resp.Error.Retryable = fixtureError.Code == "BUSY"
+				}
+				var analysisError *analysis.Error
+				if errors.As(err, &analysisError) {
+					resp.Error.Code = analysisError.Code
+					resp.Error.Retryable = analysisError.Code == "BUSY"
+				}
+				var governanceError *governance.Error
+				if errors.As(err, &governanceError) {
+					resp.Error.Code = governanceError.Code
+					resp.Error.Retryable = governanceError.Code == "BUSY"
+				}
 			}
 		}
 		b, e := json.Marshal(resp)
@@ -91,12 +124,30 @@ func Serve(in io.Reader, out io.Writer, r *recorder.Recorder, s storage.Inspecto
 	}
 	return scan.Err()
 }
-func dispatch(req Request, r *recorder.Recorder, s storage.Inspector, snapshots ...*snapshot.Service) (any, error) {
+func dispatch(req Request, r *recorder.Recorder, s storage.Inspector, services Services) (any, error) {
+	if strings.HasPrefix(req.Method, "benchmark.") || strings.HasPrefix(req.Method, "governance.") || strings.HasPrefix(req.Method, "retention.") || strings.HasPrefix(req.Method, "lineage.") {
+		if services.Governance == nil {
+			return nil, errors.New("governance service unavailable")
+		}
+		return governanceDispatch(req, services.Governance)
+	}
+	if strings.HasPrefix(req.Method, "analysis.") {
+		if services.Analysis == nil {
+			return nil, errors.New("analysis service unavailable")
+		}
+		return analysisDispatch(req, services.Analysis)
+	}
+	if strings.HasPrefix(req.Method, "fixture.") || strings.HasPrefix(req.Method, "replay.") {
+		if services.Fixtures == nil {
+			return nil, errors.New("fixture service unavailable")
+		}
+		return fixtureDispatch(req, services.Fixtures)
+	}
 	if strings.HasPrefix(req.Method, "snapshot.") || strings.HasPrefix(req.Method, "branch.") || req.Method == "object.inventory" {
-		if len(snapshots) == 0 {
+		if services.Snapshots == nil {
 			return nil, errors.New("snapshot service unavailable")
 		}
-		return snapshotDispatch(req, r, snapshots[0])
+		return snapshotDispatch(req, r, services.Snapshots)
 	}
 	switch req.Method {
 	case "hello":

@@ -67,7 +67,7 @@ func TestIPCNoApprovalCommandsOrMalformedAuthority(t *testing.T) {
 	r := recorder.New(s, &forbiddenTrustAdapter{})
 	defer r.Close()
 	for _, method := range []string{"approval.respond", "challenge.create", "provider.register", "admission.claim"} {
-		if _, e := dispatch(Request{1, "test", method, json.RawMessage(`{"verified":true}`)}, r, s); e == nil {
+		if _, e := dispatch(Request{1, "test", method, json.RawMessage(`{"verified":true}`)}, r, s, Services{}); e == nil {
 			t.Fatal("new authority command", method)
 		}
 	}

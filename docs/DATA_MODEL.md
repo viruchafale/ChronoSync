@@ -1,5 +1,23 @@
 # Data model
 
+## Phase 6 observation/report v1 — private append-only files, SQLite unchanged
+
+Observation v1 retains source execution/high-water/version, bounded configuration labels, per-run ordered event identities and only SHA-256 fingerprints for available input/output/tool/request/response/workspace evidence. It includes committed snapshot manifest identities plus explicit missing/unsupported gaps. Raw command, output, item ID, workspace and changed paths are absent.
+
+Report v1 embeds 2–20 observations, individual baseline comparisons, transparent aggregates, an explicit policy and rule results. Canonical files are stored as `analysis/v1/reports/<random-id>.json` with a SHA-256 integrity field, 0600 files, 0700 directories, private temporary write/sync, no-replace publication, a 1,000-report/256 MiB store bound and a 3 MiB per-report bound that leaves room under the 4 MiB IPC response frame. Interrupted temporary files are ignored and retained. Modification, unknown fields, noncanonical bytes, unsafe files and incompatible versions are refused. Integrity is not authenticity. SQLite remains migration 3.
+
+## Phase 5 fixture lifecycle — private content files, SQLite unchanged
+
+Validated canonical Phase 5A/5B bytes are stored as `fixtures/v1/sha256/<content-sha256>.fixture` under private application data. Files are immutable 0600 regular files; directories are 0700. Metadata and safe interaction details are derived by strict loaders rather than persisted in a mutable catalog. Publication uses an exclusive temporary file, sync, no-replace link and directory sync. Duplicate bytes converge; hash/name/permissions/size/format are verified on every read. Partial `.tmp` files are not fixtures. Corruption is reported and never rewritten. Count is capped at 1,000 and aggregate bytes at 256 MiB. SQLite remains migration 3.
+
+## Phase 5B experimental synthetic-transport fixture — no migration
+
+The separate canonical envelope has format version 1 and domain `chronosync.synthetic-transport`. Entries contain consecutive global sequence, per-key occurrence, transport identity, request SHA-256 and a response reference. The sorted response catalog contains each generated reference, response SHA-256, status and allowlisted sanitized metadata. Request operations/metadata and all request/response bodies are absent. Unknown fields/versions, noncanonical JSON, invalid envelope or response fingerprints, gaps/reordering, invalid occurrences, and missing/unreferenced responses are refused. This is an internal experiment outside SQLite and public contracts; Phase 5A fixture v1, event v2 and migration 3 are unchanged.
+
+## Phase 5A fixture v1 — external canonical bytes, no migration
+
+Fixture v1 is a canonical JSON envelope outside SQLite. It records deterministic replay/source IDs, source event version/count/high-water, adapter/redaction profile, one supported type and ordered event references. Each command completion stores SHA-256(command), SHA-256(item ID), SHA-256(output) and exit code. An outer SHA-256 protects the fixture body. Raw text, workspace paths, timestamps, prompts, credentials, events and snapshots are absent. SQLite remains migration 3; event v2 and all prior canonical objects are unchanged.
+
 ## Phase 4F authentication provenance proposal — not applied
 
 Migration 3 supplies binding/challenge/approval references, uniqueness, revisions and recovery but cannot describe an authenticated issuer or ceremony outcome. The [Phase 4F report](IMPLEMENTATION_STATUS_PHASE_04F.md#6-persistence-and-revocation-proposal--no-migration-applied) proposes additive authentication_attempts and append-only authentication_events, with unique challenge ownership, bounded mechanism/issuer/session metadata, sanitized outcomes and links to exact admission audit revisions. No existing approval is backfilled as authenticated.
@@ -167,3 +185,9 @@ The root has a process-lifetime advisory `.lock`. Each random run directory cont
 Metadata is written to run.tmp, fsynced, atomically renamed and the directory synced. Each event append is fsynced. Events determine ordinary terminal state; interrupted recovery metadata overrides a nonterminal journal. A hard crash while creating a directory may leave unreadable metadata; listing retains an interrupted placeholder and other histories remain accessible. No power-loss durability certification or full transactional DB semantics is claimed.
 
 Limits: 256 KiB normalized event, 10,000 events and 32 MiB journal per run; adapter stdout line 128 KiB and total stdout/stderr 8 MiB; text fields 32 KiB after redaction. IPC is 1 MiB/frame with pages ≤100 events and approximately 512 KiB event content. Large outputs are not external objects yet: capture truncates bounded text with a marker, and over-budget streams fail. No original prompt or file body is stored. File-change metadata contains relative path, operation and before/after size, SHA-256 and mode for observed files. There are no snapshots, object references, branch records, or migrations implemented.
+
+## Phase 7 benchmark, lineage and retention v1 — private files, SQLite unchanged
+
+Canonical benchmark envelopes are stored at `governance/v1/datasets/sha256/<sha256>.benchmark`. Dataset v1 has a stable 32-hex family ID, positive version, UTC creation time, stable sorted cases, resolved report/comparison/observation provenance, expected comparison status, supported/required evidence dimensions, `case-id-v1` compatibility and sorted provenance limitations. The outer digest is integrity/equality evidence, not authenticity or authorship. A family/version cannot map to different bytes.
+
+Lineage records at `governance/v1/lineage/<id>.json` bind exact dataset content/family/version, exact policy, sorted source report IDs, newly created result report IDs and an optional same-family parent. Retention records at `governance/v1/retention/<event-id>.json` are integrity-tagged append-only lifecycle revisions. The audit derives references and accounting from these bounded files. SQLite remains migration 3; Phase 5 fixture v1 and Phase 6 report v1 are unchanged.

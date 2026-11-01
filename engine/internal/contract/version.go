@@ -10,5 +10,5 @@ type Version struct {
 }
 
 func CurrentVersion() Version {
-	return Version{ProtocolVersion: ProtocolVersion, EngineVersion: "0.3.0", Capabilities: []string{"version", "stdio-recorder-v1", "event-v2", "timeline-v1", "snapshots-v1"}}
+	return Version{ProtocolVersion: ProtocolVersion, EngineVersion: "0.6.0", Capabilities: []string{"version", "stdio-recorder-v1", "event-v2", "timeline-v1", "snapshots-v1", "replay-fixtures-v1", "determinism-analysis-v1", "benchmark-governance-v1"}}
 }

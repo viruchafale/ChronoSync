@@ -1,6 +1,17 @@
 import { Snapshots } from "./Snapshots";
+import { Replay } from "./Replay";
+import { Analysis } from "./Analysis";
+import { Governance } from "./Governance";
 import { useEffect, useRef, useState } from "react";
-import { api as nativeAPI } from "./api";
+import {
+  analysisAPI as nativeAnalysisAPI,
+  api as nativeAPI,
+  governanceAPI as nativeGovernanceAPI,
+  replayAPI as nativeReplayAPI,
+} from "./api";
+import type { ReplayAPI } from "../../../contracts/replay";
+import type { AnalysisAPI } from "../../../contracts/analysis";
+import type { GovernanceAPI } from "../../../contracts/governance";
 import {
   isActive,
   type RecorderAPI,
@@ -9,7 +20,17 @@ import {
   type EventSummary,
   type StartSpec,
 } from "../../../contracts/recorder";
-export function App({ api = nativeAPI }: { api?: RecorderAPI }) {
+export function App({
+  api = nativeAPI,
+  replay = nativeReplayAPI,
+  analysis = nativeAnalysisAPI,
+  governance = nativeGovernanceAPI,
+}: {
+  api?: RecorderAPI;
+  replay?: ReplayAPI;
+  analysis?: AnalysisAPI;
+  governance?: GovernanceAPI;
+}) {
   const [runs, setRuns] = useState<Run[]>([]);
   const [selected, setSelected] = useState<Run | null>(null);
   const [events, setEvents] = useState<EventSummary[]>([]);
@@ -150,7 +171,7 @@ export function App({ api = nativeAPI }: { api?: RecorderAPI }) {
     <main>
       <header>
         <h1>ChronoSync</h1>
-        <p>Codex history and workspace snapshots · Phase 3</p>
+        <p>Recorded execution evidence, snapshots, and regression analysis</p>
       </header>
       <p>
         Runs use your Codex account and may contact the model provider.
@@ -312,6 +333,9 @@ export function App({ api = nativeAPI }: { api?: RecorderAPI }) {
           ))}
         </ul>
       </section>
+      <Replay api={replay} run={selected} />
+      <Analysis api={analysis} runs={runs} />
+      <Governance api={governance} />
       {selected && (
         <section aria-labelledby="timeline-heading">
           <h2 id="timeline-heading">Execution timeline</h2>

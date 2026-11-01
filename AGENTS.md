@@ -1,6 +1,6 @@
 # Engineering instructions
 
-ChronoSync is working on the explicitly authorized Phase 4G isolated macOS authentication prototype. Independent disposable protocol tests are allowed. Native authentication policy requires explicit factor selection; new dependencies/helpers/signing/entitlements/packaging require approval before introduction. Preserve current Phase 4E/F work and production provider/admission/supervisor/agent behavior. No positive launch, production authentication integration, migrations, public IPC or key management. Documentation and honest blocked/unverified evidence are part of done. Do not start another phase without authorization.
+ChronoSync has completed the explicitly authorized Phase 7 evidence-retention and benchmark-governance workflow. Preserve Phase 4 boundaries, both fixture-v1 contracts, immutable private fixture/report/governance storage, typed replay/analysis/governance IPC and production provider/admission/supervisor behavior. Replay, analysis and governance must never execute historical commands, call a provider, add network/live fallback, claim whole-run/LLM determinism, authenticity, authorship or causation, or connect results to launch authorization. Retention stays explicit and non-cascading. Documentation and honest unsupported/unverified evidence are part of done. Do not start Phase 8 without user authorization.
 
 ## Before implementation
 

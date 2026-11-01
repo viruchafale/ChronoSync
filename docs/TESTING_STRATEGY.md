@@ -1,5 +1,21 @@
 # Testing strategy
 
+## Phase 6 determinism-analysis acceptance
+
+Pure Go race tests cover identical, changed-output, missing, additional, reordered, workspace-divergent, incomplete, unsupported and multiple-observation datasets; hash-only extraction; explicit no-causality findings; threshold/incomparable behavior; report reevaluation, integrity refusal and restart. IPC integration creates disposable real event histories, persists a report and revised-policy report, then reopens both after restart. React tests exercise real selection/submission, aligned divergence/evidence quality, historical loading and reevaluation. A source audit forbids provider, HTTP, process-launch, supervisor and production-adapter imports; the application service intentionally consumes existing storage/snapshot evidence ports and private report files. Native checks compile and test only the bridge/build boundary; native window interaction remains separate acceptance evidence.
+
+## Completed Phase 5 verification
+
+Lifecycle tests cover content-addressed publication, duplicate import, success-only handoff, restart, detached export, consent, delete, partial files, traversal, permissions, unsupported data and corruption. Unified tests cover pass/mismatch, repeated occurrences, ambiguous/unmatched/unsupported/cancelled paths, fresh state, malformed plans/fixtures and canonical result bytes. IPC end-to-end tests use an in-memory adapter and disposable workspace/store to exercise record → create/import → inspect → pass/mismatch/cancel → export/delete/re-import → restart → corruption refusal. React tests cover actual fixture controls and mismatch display; Rust tests negotiate the real engine and retain recorder/snapshot coverage. Native dialog interaction and OS-level network denial remain manual/unverified gates.
+
+## Phase 5B synthetic transport contract
+
+Focused race tests cover canonical bytes/fingerprints, metadata-order normalization, explicit repeated-request occurrences, ambiguous and unmatched requests, invalid order, cancellation, reset, caller/return-buffer mutation, body/credential/prompt-shaped refusal, malformed and tampered fixtures, bounds and missing references. A recursive production-source dependency test rejects networking, storage, adapters, supervisors, `os/exec` and third-party imports reachable from `internal/replay/transport`. An independent `go list -deps` audit confirms those forbidden packages are absent. This is structural offline evidence, not OS-level network isolation.
+
+## Phase 5A replay foundation
+
+`go test -race ./internal/replay` uses real temporary SQLite history and controlled in-memory evaluators. It covers stable canonical export, matching/mismatched results, success-only regression bytes, altered bytes/digests, unknown fields/versions/types, missing/reordered/duplicated/inconsistent interactions, unsupported/incomplete/unavailable/redacted/truncated sources, size/malformed input, cancellation, injected evaluator failure, repeated stable evaluation and absence of raw recorded values. A source-import inventory test rejects process, supervisor, adapter and network imports. These tests do not prove OS-enforced offline execution, provider replay or native GUI acceptance.
+
 ## Phase 4G independent protocol tests
 
 Run `go -C experiments/macos-auth-protocol test -race -count=1 ./...` and `go -C experiments/macos-auth-protocol vet ./...` with offline dependencies and the documented temporary cache. This separate module is not automatically part of make check. Tests cover independently calculated canonical vectors, bounded challenges, malformed/forged/canonical-only frames, synthetic wrong-peer/nil-verifier refusal, session/manifest mismatch, expiry, cancellation, disconnect/restart, late callback, concurrent one-time completion and absence of production imports/exported entry points.
@@ -116,3 +132,9 @@ P2 now includes synthetic crash-injection storage/migrations and opt-in 100k-eve
 From engine: `CHRONOSYNC_LOAD=1 go test ./internal/storage -run 'TestLoad100k|TestConcurrentProducersReaders' -v -count=1`. Set the documented GOCACHE/GOMODCACHE under restricted environments. Default tests skip the 100k load workload and run the smaller correctness/concurrency suite. The load test creates a private temporary SQLite store, persists 100k short synthetic inline events (100 individual commits then batches of 100), measures a 100-row query including count, reports TotalAlloc delta, checkpoints for DB size at 10k/100k, and times full recovery. Separate contention measurement uses four producers with explicit conflict/busy retries plus concurrent page reads. It does not measure RSS, external-payload throughput, power loss or live LLM latency. Recorded environment and actual results are in [implementation status](IMPLEMENTATION_STATUS.md).
 
 The original journal tests were relocated unchanged to the legacy package because corrupting a JSONL file is an importer compatibility test after SQLite becomes authoritative. They were not deleted or weakened. The process integration now validates cursor traversal against original event identities, filtered retrieval and detail equality after restart. Native bridge tests call new query/detail methods as well as cancellation. GUI E2E remains separate and unverified.
+
+## Phase 7 governance acceptance
+
+Governance unit/race tests cover canonical creation/import/export, duplicate convergence, family/version conflict, unsupported/corrupt/missing references, added/missing/changed compatibility, policy reevaluation, immutable lineage, accounting, damage/temporary files, explicit lifecycle, referenced deletion refusal, leaf-to-root deletion, restart and concurrent import. IPC tests use disposable real Phase 6 reports and reject unknown authority fields. React tests cover accounting/lineage display, compatibility detail and visible reference refusal; locked offline Rust checks compile native dialogs and commands.
+
+The test suite never runs a historical command, provider or network client. Native dialog automation, real power loss/disk full, hostile same-user races, OS-level egress denial and cross-platform runtime behavior remain separate unverified evidence.

@@ -7,5 +7,8 @@ export interface EngineVersion {
     | "event-v2"
     | "timeline-v1"
     | "snapshots-v1"
+    | "replay-fixtures-v1"
+    | "determinism-analysis-v1"
+    | "benchmark-governance-v1"
   )[];
 }

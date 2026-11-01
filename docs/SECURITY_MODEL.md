@@ -1,5 +1,27 @@
 # Security model
 
+## Phase 6 analysis boundary
+
+Analysis is a read-only consumer of recorded history/snapshot metadata plus a private append-only report writer. It does not execute an event, command, evaluator, agent or provider; use networking; restore a workspace; or enter policy/admission/approval. IPC accepts run/report identities and a bounded versioned policy, never paths or executable content. Renderer inputs are strictly decoded by the engine.
+
+Raw supported values are hashed in memory before observation persistence. Hashes reveal equality and can permit low-entropy guessing; reports also retain local identifiers and configuration labels and therefore remain private data. Missing/redacted/truncated/corrupt evidence is explicit and cannot satisfy a required dimension. Findings say causality is unknown. SHA-256 detects report changes but is not a signature, authorization, encryption or origin proof.
+
+## Completed Phase 5 lifecycle and desktop trust boundary
+
+Fixture IPC accepts canonical text and generated digest identities, never import/export paths. The Tauri host uses native dialogs for user-selected files and native confirmation for external export and deletion. Import requires a bounded regular UTF-8 file and is validated again by Go. Export warnings are inspected before confirmation, bytes are revalidated, and destination creation is exclusive; existing files are not overwritten. Renderer data remains untrusted and cannot set the engine consent flag without the host ceremony.
+
+Private fixture storage is content addressed and integrity checked but not encrypted or authenticated. Same-user malicious software can read or alter application data. Hashes leak equality and low-entropy guesses. Native file dialogs do not establish sandboxing. Unified evaluation creates a new matcher each time and has no provider/network/command/admission fallback. Structural package isolation is narrower than OS-level egress denial.
+
+## Phase 5B synthetic transport experiment
+
+The Phase 5B port accepts no arbitrary body, URL, header set, callback or executable input. It permits only bounded token-shaped transport/operation values and a small non-credential metadata allowlist. Every string passes through the existing redactor before hashing; changed, marked, truncated, duplicate or unsupported values fail closed. Request content is represented only by an unkeyed SHA-256 fingerprint, while returned response data is limited to status and allowlisted sanitized metadata. Fingerprints leak equality and permit guessing low-entropy inputs; they are not encryption, signatures, authenticity or origin proof.
+
+The isolated production dependency graph has no network package, storage, adapter, supervisor or subprocess launcher, and tests use only in-memory values. This establishes structural unavailability through this port, not an OS-level egress sandbox for the test process or host. No actual HTTP, MCP, provider, socket, interception, admission, approval or launch path is connected.
+
+## Phase 5A inert replay boundary
+
+Replay fixture content is untrusted and strictly bounded/decoded before evaluation. Export reuses the existing redactor and refuses changed, marked-redacted or truncated supported payloads. Raw commands and outputs never enter fixture/evaluator types; only SHA-256 fingerprints and exit code do. Production replay code imports no process/provider/network boundary and cannot feed Phase 4 authority. This prevents execution through the implemented interface, not through a malicious future evaluator or compromised process. The unkeyed envelope digest detects accidental changes but is not authenticity against an editor who can recompute it; evaluation results are also not authorization evidence. Fingerprints reveal equality and permit low-entropy guessing; heuristic redaction can miss secrets, so inspect fixtures before sharing.
+
 ## Phase 4G isolated protocol model — native boundary blocked
 
 The [Phase 4G experiment report](IMPLEMENTATION_STATUS_PHASE_04G.md) distinguishes deterministic protocol results from OS authentication and peer identity. The separate standard-library test module has no production imports, store, process launcher, exported entry point or native call. Its successful peer verifier exists only in tests; nil/unverified peers refuse. No test outcome can authorize a production admission.
@@ -194,3 +216,9 @@ Prompts are not persisted. Captured strings are redacted for common credentials/
 macOS/Linux group cleanup is tested locally on macOS, including an ordinary grandchild. It does not constrain files/network/resources or reliably kill detached sessions after an engine SIGKILL. Windows recording/storage are blocked rather than using insecure fallbacks. Engine EOF and explicit cancellation are tested; native process crash/power-loss cleanup and full GUI close behavior remain unverified. Store lock prevents simultaneous writers, but no adversarial multi-user confidentiality guarantee or encrypted storage is claimed.
 
 No network interception, external-response replay, seed control, worktree restoration, AST enforcement or confirmed-deadlock detection exists in Phase 1. The future sections above remain roadmap requirements.
+
+## Phase 7 governance boundary
+
+Benchmark and retention inputs are untrusted, bounded, strictly decoded and reference-validated. Governance has no command, agent, provider, network, adapter, supervisor, admission or approval path and cannot authorize execution. Re-evaluation operates only on preserved Phase 6 observations. Dataset, report and lineage deletion requires native confirmation, an explicit delete-enabled policy and a complete reference graph; no cascade or background expiration exists.
+
+Unkeyed SHA-256 detects changed canonical bytes and reveals equality, but does not prove authorship, authenticity, approval or causation. Same-user malicious software can read or replace local data and recompute hashes. The deletion intent and tombstone expose an interrupted cross-file operation but do not make it power-loss atomic. Native dialogs are user-intent affordances, not OS-backed authentication or a sandbox.

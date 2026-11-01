@@ -1,5 +1,61 @@
 # System design
 
+## Phase 6 evidence comparison and report flow
+
+```text
+verified event history + snapshot metadata
+                  |
+                  v
+       hash-only Observation v1  x 2..20
+                  |
+                  v
+ alignment + explicit divergence + individual comparisons
+                  |
+           transparent aggregate
+                  |
+      versioned threshold policy
+                  |
+                  v
+ canonical integrity-tagged private report -> typed IPC -> React analysis
+```
+
+Observation hashes supported raw fields in memory and retains explicit missing/unsupported gaps. Alignment uses observable event identities and per-run order; it never invents a cross-run logical clock. A policy evaluates each retained comparison and each rule independently. Reevaluation reads a prior report and writes a new report with the same observations. No arrow enters an adapter, provider, network, supervisor, snapshot restore, admission or approval path.
+
+## Phase 5 lifecycle and unified evaluation
+
+```text
+completed eligible history -> 5A canonical bytes --+
+                                                    +-> private hash store -> inspect/export
+synthetic recording -------> 5B canonical bytes --+
+                                                    |
+versioned actual/request plan -> fresh matcher + comparator -> stable result
+                                                    |
+React -> typed Tauri commands -> private stdio ------+
+          native open/save/confirm (paths stay here)
+```
+
+Every unified evaluation strictly loads both fixtures, requires full plan coverage, constructs a fresh matcher, processes transport occurrences in order, then performs Phase 5A comparison. Any unmatched, ambiguous, invalid, unsupported or cancelled transport outcome prevents success. A completed result can still fail with field-level output/exit mismatches.
+
+## Phase 5B synthetic transport flow
+
+```text
+structured request -> allowlist + existing redactor -> canonical request SHA-256
+                                                        |
+immutable fixture entry (identity, occurrence, hash) ---+
+                                                        v
+                                               in-memory matcher
+                                                        |
+                                      exact response reference only
+                                                        v
+                                  detached sanitized response metadata
+```
+
+Global sequences are consecutive. Occurrences for each identity/request-fingerprint key start at one and advance in recording order. A repeated request without an occurrence is ambiguous. During evaluation, occurrences must be requested 1, 2, …; repeats or skips are invalid, absence is unmatched, and cancellation consumes nothing. Each matcher owns its state and `Reset` starts a new evaluation. There is no live fallback.
+
+## Phase 5A fixture flow
+
+Exporter reads a completed run through the storage inspection interface, walks the stable event high-water, loads every detail through existing digest/schema validation, refuses sequence gaps or unsupported evidence, re-applies redaction checks and creates ordered `command.completed` fingerprints. Strict Load validates canonical JSON and the envelope digest before Evaluate calls a controlled in-memory interface with fingerprints only. RegressionFixture returns detached bytes only for a complete matching result. No component writes SQLite, launches a process or falls back to live behavior.
+
 ## Phase 4G experimental coordinator — no production wiring
 
 A standalone module under experiments/macos-auth-protocol models a single synthetic display-only challenge and terminal observation. Coordinator-generated IDs, manifest digest, epoch/native session, policy label and bounded deadline form the exact tuple. Canonical messages are bounded to 4096 bytes; replay/mismatch/malformed/late/duplicate callbacks refuse. An out-of-band verifier seam is test-only and has no native implementation. No production API or data format changes.
@@ -236,3 +292,16 @@ Completion requires process exit zero, a completed upstream turn, no failed turn
 The host serializes bounded RPC requests and polls pages of up to 100 events / 512 KiB. Go continues recording independently. Rust waits up to 15 seconds for a reply and marks the connection unhealthy on transport failure. EOF triggers Go cleanup; host Drop waits up to 8 seconds before killing an unresponsive engine. SIGKILL/OS crash and descendants that create a new session can escape graceful group cleanup; recovery explicitly says process cleanup is unverified. No automatic retry or model resumption occurs.
 
 Restart takes an exclusive advisory store lock and marks nonterminal metadata interrupted; it does not kill a PID inferred from stale history. Corrupt records are skipped with warnings and a completed run with damaged history is downgraded to interrupted. A corrupt/incomplete run directory produces an interrupted summary and does not block unrelated runs; opening its details returns the error. Phase 1 scans journals to serve pages and is bounded per run; SQLite indexing/performance work is Phase 2.
+
+## Phase 7 benchmark governance and lineage flow
+
+```text
+strict Phase 6 report/comparison references
+        -> canonical benchmark dataset v1 -> content-addressed private file
+        -> explicit version comparison (exact/extension/incompatible/unsupported)
+        -> preserved-observation reevaluation -> new Phase 6 report(s)
+        -> immutable dataset + policy + source/result lineage
+        -> append-only retention/reference audit -> confirmed leaf-to-root deletion
+```
+
+Retention expiration never schedules work, archive is metadata only, and deletion never cascades. Dataset/report/lineage references are resolved from integrity-checked canonical bytes before deletion. An intent/file-removal/tombstone sequence exposes rather than hides the cross-file crash window.

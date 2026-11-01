@@ -1,5 +1,21 @@
 # Codex integration — Phase 1
 
+## Phase 6 remains separate from live Codex
+
+Determinism analysis reads already stored event/snapshot evidence and writes private reports. It never calls `adapter/codex`, starts a CLI, submits a prompt, contacts a provider or uses a comparison result as launch authority. Event-v2 does not contain controlled provider request/response or hidden model state; reports mark those dimensions unsupported instead of reconstructing them.
+
+## Completed Phase 5 remains separate from live Codex
+
+Fixture creation reads completed stored observations. Import, inspection, evaluation and export do not invoke the Codex adapter. The desktop labels controlled evaluation separately from live recording, and no replay result enters supervisor, policy, admission or approval. A live rerun remains a new explicitly consented execution.
+
+## Phase 5B remains disconnected
+
+The synthetic transport experiment does not wrap or import the Codex adapter, CLI, app server, provider transport, MCP implementation or supervisor. Its fixtures cannot represent provider prompts or bodies and its matcher cannot fall back to this live integration. Connecting any real Codex transport requires a separate reviewed capture/privacy/consent design.
+
+## Phase 5A replay distinction
+
+The replay foundation never invokes this Codex adapter. It reads already-persisted, integrity-checked command-completion observations and exports inert fingerprints for a controlled evaluator. It cannot reconstruct provider requests, model state, tool arguments/results or a live Codex run. A live rerun remains a new execution with fresh consent and is never an automatic replay fallback.
+
 ## Verified interface
 
 Inspected installed `codex-cli 0.163.0`, `codex exec --help`, `codex app-server --help` and `codex login status` on 2026-10-21. Login reported ChatGPT without reading credential contents. [Official exec documentation](https://developers.openai.com/codex/noninteractive) establishes structured JSONL output; [app-server documentation](https://developers.openai.com/codex/app-server) describes a richer bidirectional interface. Exec is the narrower boundary for this single-run milestone; app-server is not used, and no terminal presentation scraping or internal API is involved.

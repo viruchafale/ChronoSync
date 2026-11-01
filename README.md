@@ -1,10 +1,10 @@
 # ChronoSync
 
-**Local-first execution history and workspace snapshots for Codex.**
+**Local-first execution history, workspace snapshots, and observable regression analysis for Codex.**
 
 ChronoSync is a native desktop application for recording observable Codex CLI runs, inspecting their event timelines, and capturing restorable workspace snapshots. It combines a React interface, a Rust/Tauri desktop host, and a Go engine over private stdio. Run history and snapshot content stay in private local application storage.
 
-> **Developer preview:** the macOS ARM64 application builds and launches from a real DMG, but the artifact is currently unsigned and not notarized. Multi-agent execution, production sandbox enforcement, OS-backed approval, replay, and Windows recording are not available.
+> **Developer preview:** the macOS ARM64 application builds and launches from a real DMG, but the artifact is currently unsigned and not notarized. Multi-agent execution, production sandbox enforcement, OS-backed approval, live/provider replay, and Windows recording are not available.
 
 ## What works today
 
@@ -14,19 +14,29 @@ ChronoSync is a native desktop application for recording observable Codex CLI ru
 - **Local desktop bridge:** Tauri launches the bundled Go engine over inherited stdio. The engine does not open a network listener.
 - **Conservative policy foundation:** typed policy and admission components refuse unsupported authority. No positive policy-controlled launch path is enabled.
 - **macOS packaging:** build a mountable ARM64 DMG containing the desktop host and engine sidecar.
+- **Replay regression foundation:** export and compare inert fingerprints for a narrowly supported completed-command fixture without executing recorded commands or calling a provider.
+- **Synthetic transport experiment:** build and match a bounded request-fingerprint fixture without a provider, network, subprocess or live fallback.
+- **Regression fixture workflow:** create, persist, inspect, import/export and evaluate supported fixtures through native file dialogs and typed desktop controls.
+- **Determinism evidence analysis:** compare repeated recorded observations, inspect aligned divergence, apply explicit thresholds, and retain integrity-tagged historical reports without rerunning commands or providers.
+- **Benchmark governance:** create/import versioned local benchmark datasets, compare definitions, preserve reevaluation lineage, inspect retention/accounting, and refuse referenced deletion without executing agents or commands.
 
 ## Product status
 
-| Area                                      | Status                                                                   |
-| ----------------------------------------- | ------------------------------------------------------------------------ |
-| Codex recorder                            | Implemented; real read-only Codex capture verified                       |
-| Durable SQLite history                    | Implemented with integrity and migration checks                          |
-| Snapshot capture, restore, and branch     | Implemented with bounded content-addressable storage                     |
-| macOS ARM64 desktop build                 | Implemented and launch-verified from a DMG                               |
-| Signed/notarized distribution             | Pending Developer ID signing, notarization, and clean-machine validation |
-| Multi-agent orchestration and evaluation  | Architecture only                                                        |
-| OS-backed approval and enforced isolation | Research/prototype boundary only; no production integration              |
-| Windows recording                         | Blocked on job-object supervision and private-store ACL validation       |
+| Area                                      | Status                                                                         |
+| ----------------------------------------- | ------------------------------------------------------------------------------ |
+| Codex recorder                            | Implemented; real read-only Codex capture verified                             |
+| Durable SQLite history                    | Implemented with integrity and migration checks                                |
+| Snapshot capture, restore, and branch     | Implemented with bounded content-addressable storage                           |
+| macOS ARM64 desktop build                 | Implemented and launch-verified from a DMG                                     |
+| Signed/notarized distribution             | Pending Developer ID signing, notarization, and clean-machine validation       |
+| Multi-agent orchestration and evaluation  | Architecture only                                                              |
+| OS-backed approval and enforced isolation | Research/prototype boundary only; no production integration                    |
+| Windows recording                         | Blocked on job-object supervision and private-store ACL validation             |
+| Replay/regression foundation              | Backend-only command-completion fingerprint evaluation; no command or AI rerun |
+| Synthetic transport contract              | Internal experiment verified; no HTTP/MCP/provider capture or production use   |
+| Regression fixture desktop workflow       | Implemented for controlled fingerprints; no historical command or AI rerun     |
+| Observable determinism analysis           | Implemented with explicit evidence gaps/thresholds; no causal or LLM guarantee |
+| Evidence and benchmark governance         | Implemented locally; hashes are not authorship and deletion never cascades     |
 
 See the [implementation status index](docs/IMPLEMENTATION_STATUS.md) for milestone evidence and the [submission-build report](docs/IMPLEMENTATION_STATUS_SUBMISSION_BUILD.md) for the current DMG verification.
 
@@ -37,9 +47,9 @@ React UI  →  Rust/Tauri host  →  Go engine  →  Codex CLI
                        private stdio
 ```
 
-- **UI:** React and TypeScript provide consent, recording, history, timeline, and snapshot workflows.
+- **UI:** React and TypeScript provide consent, recording, history, timeline, snapshot, fixture, analysis, and governance workflows.
 - **Host:** Rust/Tauri resolves the packaged engine, owns its lifecycle, and exposes typed commands to the UI.
-- **Engine:** Go owns recording, event normalization, SQLite persistence, snapshot storage, policy contracts, and process supervision.
+- **Engine:** Go owns recording, event normalization, SQLite persistence, snapshot/fixture/report/governance storage, analysis contracts, policy contracts, and process supervision.
 - **Adapters:** provider-specific parsing stays behind engine interfaces. Codex is the only implemented provider.
 
 Dependencies flow from UI to host to engine ports and adapters. Captured content is treated as untrusted, and historical commands are never executed while browsing a timeline.
@@ -104,6 +114,8 @@ Timeline queries are bounded and use stable pagination. Stored event payloads ar
 Restore and Branch always materialize into a fresh private directory. Branching shares immutable stored objects but each materialized workspace consumes normal filesystem space. Snapshotting does not provide deterministic replay or a security boundary.
 
 Back up the complete application-data directory while ChronoSync is stopped before changing versions. Older engines refuse databases with newer schema versions; there is no destructive downgrade or automatic repair path.
+
+Benchmark datasets, lineage, and retention events are stored as bounded canonical private files. Retention expiration is informational; nothing is deleted automatically. Deletion requires native confirmation and refuses referenced objects. SHA-256 detects content equality/modification but does not prove who created or approved evidence.
 
 ## Development checks
 
