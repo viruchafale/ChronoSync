@@ -54,6 +54,12 @@ func decodeDataset(raw []byte) (Dataset, string, error) {
 	return envelope.Dataset, digest(raw), nil
 }
 
+// ValidateDatasetBytes validates detached benchmark bytes for exchange
+// preflight without publishing them or resolving local report references.
+func ValidateDatasetBytes(raw []byte) (Dataset, string, error) {
+	return decodeDataset(raw)
+}
+
 func validateDataset(dataset Dataset) error {
 	if dataset.FormatVersion != FormatVersion || !model.ValidID(dataset.BenchmarkID) || dataset.Version < 1 || len(dataset.Name) < 1 || len(dataset.Name) > 128 || dataset.CompatibilityModel != "case-id-v1" || len(dataset.Cases) < 1 || len(dataset.Cases) > MaxCases || len(dataset.ProvenanceLimitations) < 1 || len(dataset.ProvenanceLimitations) > 32 {
 		return &Error{"INVALID_DATASET", "version, identity, name, cases, compatibility, or provenance"}

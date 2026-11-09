@@ -5,7 +5,7 @@ use std::process::{Child, ChildStdin, Command, Stdio};
 use std::sync::mpsc::{self, Receiver};
 use std::time::{Duration, Instant};
 
-const LIMIT: usize = 4 * 1024 * 1024;
+const LIMIT: usize = 12 * 1024 * 1024;
 pub struct Bridge {
     child: Child,
     input: Option<ChildStdin>,
@@ -63,6 +63,8 @@ impl Bridge {
                     && c.contains(&json!("replay-fixtures-v1"))
                     && c.contains(&json!("determinism-analysis-v1"))
                     && c.contains(&json!("benchmark-governance-v1"))
+                    && c.contains(&json!("benchmark-exchange-v1"))
+                    && c.contains(&json!("key-custody-recovery-v1"))
             })
         {
             return Err("Incompatible recorder engine".into());

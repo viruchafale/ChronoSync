@@ -10,5 +10,7 @@ export interface EngineVersion {
     | "replay-fixtures-v1"
     | "determinism-analysis-v1"
     | "benchmark-governance-v1"
+    | "benchmark-exchange-v1"
+    | "key-custody-recovery-v1"
   )[];
 }

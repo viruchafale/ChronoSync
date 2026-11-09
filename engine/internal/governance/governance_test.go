@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sync"
 	"testing"
 
@@ -170,6 +171,142 @@ func TestDamageAccountingInterruptedWriteAndExplicitRecovery(t *testing.T) {
 	}
 	if err = service.Delete(context.Background(), DatasetObject, dataset.ContentID, true); err != nil {
 		t.Fatal("explicit damaged dataset deletion failed", err)
+	}
+}
+
+func TestInterruptedDeletionRemainsPendingAndRetryCompletes(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("directory permission fault injection requires Unix permissions")
+	}
+	root := privateRoot(t)
+	reports := newFakeReports(t)
+	service, err := New(root, reports)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer service.Close()
+	dataset := createDataset(t, service, reports.first, "case-a", "")
+	datasetPath := filepath.Join(root, datasetName(dataset.ContentID))
+	datasetDirectory := filepath.Dir(datasetPath)
+	if err = os.Chmod(datasetDirectory, 0500); err != nil {
+		t.Fatal(err)
+	}
+	restored := false
+	defer func() {
+		if !restored {
+			_ = os.Chmod(datasetDirectory, 0700)
+		}
+	}()
+
+	if err = service.Delete(context.Background(), DatasetObject, dataset.ContentID, true); err == nil {
+		t.Fatal("physical deletion unexpectedly succeeded during permission fault")
+	}
+	if _, statErr := os.Stat(datasetPath); statErr != nil {
+		t.Fatal("dataset was not retained after interrupted deletion", statErr)
+	}
+	status := service.statusOrDefault(DatasetObject, dataset.ContentID)
+	if status.State != DeletionPending || status.Revision != 2 {
+		t.Fatal("interrupted deletion was not durably pending", status)
+	}
+	audit, auditErr := service.Audit(context.Background())
+	if auditErr != nil {
+		t.Fatal(auditErr)
+	}
+	pendingVisible := false
+	for _, retained := range audit.Retention {
+		if retained.ObjectKind == DatasetObject && retained.ObjectID == dataset.ContentID && retained.State == DeletionPending {
+			pendingVisible = true
+			break
+		}
+	}
+	if !pendingVisible {
+		t.Fatal("audit did not expose pending deletion")
+	}
+
+	if err = os.Chmod(datasetDirectory, 0700); err != nil {
+		t.Fatal(err)
+	}
+	restored = true
+	if err = service.Delete(context.Background(), DatasetObject, dataset.ContentID, true); err != nil {
+		t.Fatal("pending deletion retry failed", err)
+	}
+	if _, statErr := os.Stat(datasetPath); !errors.Is(statErr, os.ErrNotExist) {
+		t.Fatal("dataset still exists after deletion retry", statErr)
+	}
+	status = service.statusOrDefault(DatasetObject, dataset.ContentID)
+	if status.State != Deleted || status.Revision != 3 {
+		t.Fatal("deletion retry did not commit tombstone", status)
+	}
+	if err = service.Delete(context.Background(), DatasetObject, dataset.ContentID, true); err != nil {
+		t.Fatal("completed deletion was not idempotent", err)
+	}
+}
+
+func TestInterruptedDeletionAfterRemovalCommitsTombstoneOnRetry(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("directory permission fault injection requires Unix permissions")
+	}
+	root := privateRoot(t)
+	reports := newFakeReports(t)
+	service, err := New(root, reports)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer service.Close()
+	dataset := createDataset(t, service, reports.first, "case-a", "")
+	if _, err = service.SetRetention(context.Background(), DatasetObject, dataset.ContentID, DeletionPending, DefaultRetentionPolicy(), "prepare interrupted deletion"); err != nil {
+		t.Fatal(err)
+	}
+	datasetPath := filepath.Join(root, datasetName(dataset.ContentID))
+	retentionDirectory := filepath.Join(root, "governance", "v1", "retention")
+	if err = os.Chmod(retentionDirectory, 0500); err != nil {
+		t.Fatal(err)
+	}
+	restored := false
+	defer func() {
+		if !restored {
+			_ = os.Chmod(retentionDirectory, 0700)
+		}
+	}()
+
+	if err = service.Delete(context.Background(), DatasetObject, dataset.ContentID, true); err == nil {
+		t.Fatal("tombstone publication unexpectedly succeeded during permission fault")
+	}
+	if _, statErr := os.Stat(datasetPath); !errors.Is(statErr, os.ErrNotExist) {
+		t.Fatal("dataset was not removed before tombstone interruption", statErr)
+	}
+	status := service.statusOrDefault(DatasetObject, dataset.ContentID)
+	if status.State != DeletionPending || status.Revision != 2 {
+		t.Fatal("interrupted tombstone did not preserve pending state", status)
+	}
+	audit, auditErr := service.Audit(context.Background())
+	if auditErr != nil {
+		t.Fatal(auditErr)
+	}
+	pendingIssue := false
+	for _, issue := range audit.Issues {
+		if issue.Code == "PENDING_DELETION" && issue.ObjectKind == DatasetObject && issue.ObjectID == dataset.ContentID {
+			pendingIssue = true
+			break
+		}
+	}
+	if !pendingIssue {
+		t.Fatal("audit did not report removal without tombstone")
+	}
+
+	if err = os.Chmod(retentionDirectory, 0700); err != nil {
+		t.Fatal(err)
+	}
+	restored = true
+	if err = service.Delete(context.Background(), DatasetObject, dataset.ContentID, true); err != nil {
+		t.Fatal("tombstone retry failed", err)
+	}
+	status = service.statusOrDefault(DatasetObject, dataset.ContentID)
+	if status.State != Deleted || status.Revision != 3 {
+		t.Fatal("tombstone retry did not complete deletion", status)
+	}
+	if err = service.Delete(context.Background(), DatasetObject, dataset.ContentID, true); err != nil {
+		t.Fatal("completed deletion was not idempotent", err)
 	}
 }
 

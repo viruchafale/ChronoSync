@@ -140,6 +140,115 @@ func (s *Service) Get(ctx context.Context, id string) (Report, error) {
 	return s.read(reportName(id), id)
 }
 
+// ExportCanonical returns the exact validated report bytes for a signed
+// exchange package. It is internal and does not expose a filesystem path.
+func (s *Service) ExportCanonical(ctx context.Context, id string) ([]byte, error) {
+	if _, err := s.Get(ctx, id); err != nil {
+		return nil, err
+	}
+	file, err := s.root.Open(reportName(id))
+	if err != nil {
+		return nil, &Error{"STORAGE_ERROR", "analysis report export"}
+	}
+	raw, readErr := io.ReadAll(io.LimitReader(file, MaxReportBytes+1))
+	closeErr := file.Close()
+	if readErr != nil || closeErr != nil || len(raw) > MaxReportBytes {
+		return nil, &Error{"CORRUPT_REPORT", "analysis report export"}
+	}
+	return raw, nil
+}
+
+// ValidateCanonical validates detached report bytes without publishing them.
+func ValidateCanonical(raw []byte) (Report, error) {
+	if len(raw) == 0 || len(raw) > MaxReportBytes {
+		return Report{}, &Error{"LIMIT_EXCEEDED", "analysis report bytes"}
+	}
+	var report Report
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	if decoder.Decode(&report) != nil || decoder.Decode(&struct{}{}) != io.EOF || report.FormatVersion != FormatVersion || !model.ValidID(report.ReportID) {
+		return Report{}, &Error{"CORRUPT_REPORT", "analysis report validation"}
+	}
+	canonical, _ := json.Marshal(report)
+	if !bytes.Equal(canonical, raw) {
+		return Report{}, &Error{"CORRUPT_REPORT", "analysis report is not canonical"}
+	}
+	digest := report.SHA256
+	report.SHA256 = ""
+	unsigned, _ := json.Marshal(report)
+	report.SHA256 = digest
+	if digest == "" || digest != hashBytes(unsigned) {
+		return Report{}, &Error{"CORRUPT_REPORT", "analysis report integrity"}
+	}
+	evaluation, err := Evaluate(report.Experiment, report.Policy)
+	if err != nil {
+		return Report{}, &Error{"CORRUPT_REPORT", "analysis report contract"}
+	}
+	expected, _ := json.Marshal(evaluation)
+	actual, _ := json.Marshal(report.Evaluation)
+	if !bytes.Equal(expected, actual) {
+		return Report{}, &Error{"CORRUPT_REPORT", "analysis evaluation mismatch"}
+	}
+	return report, nil
+}
+
+// ImportCanonical publishes a fully preflighted signed report idempotently.
+func (s *Service) ImportCanonical(ctx context.Context, raw []byte) (Report, bool, error) {
+	report, err := ValidateCanonical(raw)
+	if err != nil {
+		return Report{}, false, err
+	}
+	if err = s.enter(); err != nil {
+		return Report{}, false, err
+	}
+	defer s.leave()
+	if ctx.Err() != nil {
+		return Report{}, false, &Error{"CANCELLED", "analysis report import"}
+	}
+	name := reportName(report.ReportID)
+	if existing, readErr := s.root.Open(name); readErr == nil {
+		existingRaw, existingErr := io.ReadAll(io.LimitReader(existing, MaxReportBytes+1))
+		closeErr := existing.Close()
+		if existingErr != nil || closeErr != nil || !bytes.Equal(existingRaw, raw) {
+			return Report{}, false, &Error{"REPORT_CONFLICT", "analysis report identity has different bytes"}
+		}
+		return report, true, nil
+	}
+	summaries, total, err := s.inventory(ctx, false)
+	if err != nil {
+		return Report{}, false, err
+	}
+	if len(summaries) >= MaxReports || total+int64(len(raw)) > maxReportStorage {
+		return Report{}, false, &Error{"LIMIT_EXCEEDED", "analysis report storage"}
+	}
+	temp := "analysis/v1/reports/." + report.ReportID + "." + model.ID() + ".tmp"
+	file, err := s.root.OpenFile(temp, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
+	if err != nil {
+		return Report{}, false, &Error{"STORAGE_ERROR", "analysis report import temporary create"}
+	}
+	defer s.root.Remove(temp)
+	if _, err = file.Write(raw); err == nil {
+		err = file.Sync()
+	}
+	closeErr := file.Close()
+	if err == nil {
+		err = closeErr
+	}
+	if err != nil {
+		return Report{}, false, &Error{"STORAGE_ERROR", "analysis report import write"}
+	}
+	if err = s.root.Link(temp, name); err != nil {
+		return Report{}, false, &Error{"STORAGE_ERROR", "analysis report import publish"}
+	}
+	if err = s.root.Remove(temp); err != nil {
+		return Report{}, false, &Error{"STORAGE_ERROR", "analysis report import cleanup"}
+	}
+	if err = s.syncDirectory(); err != nil {
+		return Report{}, false, err
+	}
+	return report, false, nil
+}
+
 // DeleteGoverned removes one report only after the governance service has
 // recorded explicit intent and verified that no retained artifact references
 // it. It is deliberately not exposed directly over IPC.
@@ -217,6 +326,11 @@ func (s *Service) inventory(ctx context.Context, collect bool) ([]ReportSummary,
 			summaries = append(summaries, summarize(report))
 		}
 	}
+	// Capacity-only callers still need an accurate count without reading and
+	// exposing every report body.
+	if !collect {
+		summaries = make([]ReportSummary, reports)
+	}
 	sort.Slice(summaries, func(i, j int) bool {
 		if summaries[i].CreatedAt == summaries[j].CreatedAt {
 			return summaries[i].ReportID > summaries[j].ReportID
@@ -243,25 +357,9 @@ func (s *Service) read(name, id string) (Report, error) {
 	if readErr != nil || closeErr != nil || len(raw) > MaxReportBytes {
 		return Report{}, &Error{"CORRUPT_REPORT", "analysis report read"}
 	}
-	var report Report
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.DisallowUnknownFields()
-	if decoder.Decode(&report) != nil || decoder.Decode(&struct{}{}) != io.EOF || report.FormatVersion != FormatVersion || report.ReportID != id || !model.ValidID(report.ReportID) {
+	report, err := ValidateCanonical(raw)
+	if err != nil || report.ReportID != id {
 		return Report{}, &Error{"CORRUPT_REPORT", "analysis report validation"}
-	}
-	canonical, _ := json.Marshal(report)
-	if !bytes.Equal(canonical, raw) {
-		return Report{}, &Error{"CORRUPT_REPORT", "analysis report is not canonical"}
-	}
-	digest := report.SHA256
-	report.SHA256 = ""
-	unsigned, _ := json.Marshal(report)
-	report.SHA256 = digest
-	if digest == "" || digest != hashBytes(unsigned) {
-		return Report{}, &Error{"CORRUPT_REPORT", "analysis report integrity"}
-	}
-	if _, err = Evaluate(report.Experiment, report.Policy); err != nil {
-		return Report{}, &Error{"CORRUPT_REPORT", "analysis report contract"}
 	}
 	return report, nil
 }

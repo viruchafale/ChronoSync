@@ -70,3 +70,23 @@ export const governanceAPI: import("../../../contracts/governance").GovernanceAP
     audit: () => desktop("governance_audit"),
     deleteObject: (kind, id) => desktop("governance_delete", { kind, id }),
   };
+
+export const exchangeAPI: import("../../../contracts/exchange").ExchangeAPI = {
+  createIdentity: (label, supersedes) =>
+    desktop("identity_create", { label, supersedes }),
+  identities: () => desktop("identity_list"),
+  migrations: () => desktop("identity_migration_list"),
+  migrate: (keyId) => desktop("identity_migrate", { keyId }),
+  custodyStatus: (keyId) => desktop("identity_custody_status", { keyId }),
+  auditTrust: () => desktop("identity_trust_audit"),
+  setTrust: (keyId, trustState, reason) =>
+    desktop("identity_trust", { keyId, trustState, reason }),
+  exportPackage: (datasetContentId, identityKeyId, includeReportIds) =>
+    desktop("exchange_export", {
+      datasetContentId,
+      identityKeyId,
+      includeReportIds,
+    }),
+  inspectPackage: () => desktop("exchange_inspect"),
+  importPackage: () => desktop("exchange_import"),
+};

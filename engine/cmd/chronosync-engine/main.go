@@ -4,6 +4,7 @@ import (
 	"chronosync.local/engine/internal/adapter/codex"
 	"chronosync.local/engine/internal/analysis"
 	"chronosync.local/engine/internal/contract"
+	"chronosync.local/engine/internal/exchange"
 	"chronosync.local/engine/internal/fixtures"
 	"chronosync.local/engine/internal/governance"
 	"chronosync.local/engine/internal/ipc"
@@ -93,6 +94,12 @@ func serve(args []string) int {
 		return 1
 	}
 	defer governanceService.Close()
+	exchangeService, err := exchange.New(path, analysisService, governanceService)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "exchange service unavailable")
+		return 1
+	}
+	defer exchangeService.Close()
 	if err = snapshots.Recover(context.Background()); err != nil {
 		fmt.Fprintln(os.Stderr, "snapshot recovery failed")
 		return 1
@@ -102,7 +109,7 @@ func serve(args []string) int {
 	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
 	defer signal.Stop(signals)
 	go func() { <-signals; rec.Close(); _ = os.Stdin.Close() }()
-	if err = ipc.ServeWithServices(os.Stdin, os.Stdout, rec, store, ipc.Services{Snapshots: snapshots, Fixtures: fixtureService, Analysis: analysisService, Governance: governanceService}); err != nil {
+	if err = ipc.ServeWithServices(os.Stdin, os.Stdout, rec, store, ipc.Services{Snapshots: snapshots, Fixtures: fixtureService, Analysis: analysisService, Governance: governanceService, Exchange: exchangeService}); err != nil {
 		fmt.Fprintln(os.Stderr, "engine protocol stopped:", err)
 		return 1
 	}

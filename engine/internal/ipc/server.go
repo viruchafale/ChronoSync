@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"chronosync.local/engine/internal/analysis"
 	"chronosync.local/engine/internal/contract"
+	"chronosync.local/engine/internal/exchange"
 	"chronosync.local/engine/internal/fixtures"
 	"chronosync.local/engine/internal/governance"
 	"chronosync.local/engine/internal/model"
@@ -19,13 +20,16 @@ import (
 	"strings"
 )
 
-const MaxFrame = 4 * 1024 * 1024
+// Exchange packages are bounded at 8 MiB and base64 encoded over private
+// stdio, so the protocol frame retains bounded encoding headroom.
+const MaxFrame = 12 * 1024 * 1024
 
 type Services struct {
 	Snapshots  *snapshot.Service
 	Fixtures   *fixtures.Service
 	Analysis   *analysis.Service
 	Governance *governance.Service
+	Exchange   *exchange.Service
 }
 
 type Request struct {
@@ -109,6 +113,11 @@ func ServeWithServices(in io.Reader, out io.Writer, r *recorder.Recorder, s stor
 					resp.Error.Code = governanceError.Code
 					resp.Error.Retryable = governanceError.Code == "BUSY"
 				}
+				var exchangeError *exchange.Error
+				if errors.As(err, &exchangeError) {
+					resp.Error.Code = exchangeError.Code
+					resp.Error.Retryable = exchangeError.Code == "BUSY"
+				}
 			}
 		}
 		b, e := json.Marshal(resp)
@@ -125,6 +134,12 @@ func ServeWithServices(in io.Reader, out io.Writer, r *recorder.Recorder, s stor
 	return scan.Err()
 }
 func dispatch(req Request, r *recorder.Recorder, s storage.Inspector, services Services) (any, error) {
+	if strings.HasPrefix(req.Method, "exchange.") || strings.HasPrefix(req.Method, "identity.") {
+		if services.Exchange == nil {
+			return nil, errors.New("exchange service unavailable")
+		}
+		return exchangeDispatch(req, services.Exchange)
+	}
 	if strings.HasPrefix(req.Method, "benchmark.") || strings.HasPrefix(req.Method, "governance.") || strings.HasPrefix(req.Method, "retention.") || strings.HasPrefix(req.Method, "lineage.") {
 		if services.Governance == nil {
 			return nil, errors.New("governance service unavailable")
@@ -166,13 +181,13 @@ func dispatch(req Request, r *recorder.Recorder, s storage.Inspector, services S
 		return runs, err
 	case "run.query":
 		var q storage.RunQuery
-		if json.Unmarshal(req.Params, &q) != nil {
+		if strictRequest(req.Params, &q) != nil {
 			return nil, errors.New("invalid run query")
 		}
 		return s.QueryRuns(context.Background(), q)
 	case "event.query":
 		var q storage.EventQuery
-		if json.Unmarshal(req.Params, &q) != nil {
+		if strictRequest(req.Params, &q) != nil {
 			return nil, errors.New("invalid event query")
 		}
 		return s.QueryEvents(context.Background(), q)
@@ -181,7 +196,7 @@ func dispatch(req Request, r *recorder.Recorder, s storage.Inspector, services S
 			ID      string `json:"id"`
 			EventID string `json:"event_id"`
 		}
-		if json.Unmarshal(req.Params, &q) != nil {
+		if strictRequest(req.Params, &q) != nil {
 			return nil, errors.New("invalid identity")
 		}
 		if req.Method == "run.get" {
@@ -192,7 +207,7 @@ func dispatch(req Request, r *recorder.Recorder, s storage.Inspector, services S
 		var p struct {
 			ID string `json:"id"`
 		}
-		if json.Unmarshal(req.Params, &p) != nil {
+		if strictRequest(req.Params, &p) != nil {
 			return nil, errors.New("invalid cancellation")
 		}
 		err := r.Cancel(p.ID)
@@ -202,7 +217,7 @@ func dispatch(req Request, r *recorder.Recorder, s storage.Inspector, services S
 			ID    string `json:"id"`
 			After string `json:"after"`
 		}
-		if json.Unmarshal(req.Params, &p) != nil {
+		if strictRequest(req.Params, &p) != nil {
 			return nil, errors.New("invalid page request")
 		}
 		after, err := strconv.ParseInt(p.After, 10, 64)
