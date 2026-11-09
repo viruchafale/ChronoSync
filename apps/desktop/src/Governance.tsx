@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SectionNav } from "./Workbench";
 import {
   defaultRetentionPolicy,
   type BenchmarkDataset,
@@ -67,6 +68,15 @@ export function Governance({ api }: { api: GovernanceAPI }) {
   return (
     <section aria-labelledby="governance-heading">
       <h2 id="governance-heading">Evidence retention and benchmarks</h2>
+      <SectionNav
+        items={[
+          ["benchmark-create-heading", "Create dataset"],
+          ["dataset-library", "Dataset library"],
+          ["compatibility-heading", "Compatibility"],
+          ["reevaluation-heading", "Evaluation lineage"],
+          ["retention-heading", "Retention"],
+        ]}
+      />
       <p>
         Govern local, bounded analysis evidence. Integrity fingerprints reveal
         equality; they do not prove authorship, authenticity, causality, or
@@ -152,7 +162,7 @@ export function Governance({ api }: { api: GovernanceAPI }) {
         </button>
       </section>
 
-      <section aria-label="Benchmark datasets">
+      <section id="dataset-library" aria-label="Benchmark datasets">
         <h3>Benchmark datasets</h3>
         {datasets.length === 0 ? (
           <p>No benchmark datasets are loaded.</p>

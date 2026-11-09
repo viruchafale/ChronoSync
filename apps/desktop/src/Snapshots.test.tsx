@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Snapshots } from "./Snapshots";
@@ -10,6 +10,14 @@ import type {
 } from "../../../contracts/snapshot";
 import type { Run } from "../../../contracts/recorder";
 afterEach(cleanup);
+beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = function () {
+    this.open = true;
+  };
+  HTMLDialogElement.prototype.close = function () {
+    this.open = false;
+  };
+});
 const run: Run = {
   id: "run",
   schema_version: 1,
@@ -98,6 +106,10 @@ it("shows actual branch preparation then ready and source ancestry", async () =>
   await screen.findByRole("button", { name: "Branch snapshot" });
   await user.click(screen.getByRole("checkbox"));
   await user.click(screen.getByRole("button", { name: "Branch snapshot" }));
+  expect(api.materialize).not.toHaveBeenCalled();
+  await user.click(
+    screen.getByRole("button", { name: "Confirm workspace creation" }),
+  );
   expect(screen.getByText("Preparing branch…")).toBeTruthy();
   ready = true;
   resolve(branch);
@@ -129,4 +141,25 @@ it("retains failure diagnostics and disables damaged restore", async () => {
   );
   await waitFor(() => expect(api.list).toHaveBeenCalledTimes(2));
   expect(screen.getByRole("alert").textContent).toContain("WORKSPACE_CHANGED");
+});
+
+it("cancels restoration without materializing and confirms the exact snapshot", async () => {
+  const api = fixture();
+  const user = userEvent.setup();
+  render(<Snapshots run={run} api={api} />);
+  await screen.findByRole("button", { name: "Restore snapshot" });
+  await user.click(screen.getByRole("checkbox"));
+  await user.click(screen.getByRole("button", { name: "Restore snapshot" }));
+  expect(screen.getByRole("dialog", { name: "Restore snapshot" })).toBeTruthy();
+  expect(api.materialize).not.toHaveBeenCalled();
+  await user.click(screen.getByRole("button", { name: "Cancel" }));
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(api.materialize).not.toHaveBeenCalled();
+  await user.click(screen.getByRole("button", { name: "Restore snapshot" }));
+  await user.click(
+    screen.getByRole("button", { name: "Confirm workspace creation" }),
+  );
+  await waitFor(() =>
+    expect(api.materialize).toHaveBeenCalledWith("snapshot", false, true),
+  );
 });

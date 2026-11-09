@@ -19,26 +19,34 @@ ChronoSync is a native desktop application for recording observable Codex CLI ru
 - **Regression fixture workflow:** create, persist, inspect, import/export and evaluate supported fixtures through native file dialogs and typed desktop controls.
 - **Determinism evidence analysis:** compare repeated recorded observations, inspect aligned divergence, apply explicit thresholds, and retain integrity-tagged historical reports without rerunning commands or providers.
 - **Benchmark governance:** create/import versioned local benchmark datasets, compare definitions, preserve reevaluation lineage, inspect retention/accounting, and refuse referenced deletion without executing agents or commands.
+- **Signed benchmark exchange:** create personal Ed25519 identities, export/import bounded non-executable evidence packages, distinguish signature validity from local trust, and retain explicit revocation history.
+- **macOS key custody and recovery:** create/sign with login-Keychain Ed25519 secrets, explicitly migrate legacy file seeds, inspect loss/corruption states, and audit trust history without changing package signatures.
+- **Release-identity readiness:** render and validate credential-neutral macOS entitlements, require hardened-runtime Developer ID identity continuity, and fail closed when protected Keychain authorization is unavailable.
+- **Release-security preflight:** report non-sensitive Developer ID/profile prerequisites and validate Candidate A/B identity continuity without selecting credentials or treating structural checks as signed acceptance.
 
 ## Product status
 
-| Area                                      | Status                                                                         |
-| ----------------------------------------- | ------------------------------------------------------------------------------ |
-| Codex recorder                            | Implemented; real read-only Codex capture verified                             |
-| Durable SQLite history                    | Implemented with integrity and migration checks                                |
-| Snapshot capture, restore, and branch     | Implemented with bounded content-addressable storage                           |
-| macOS ARM64 desktop build                 | Implemented and launch-verified from a DMG                                     |
-| Signed/notarized distribution             | Pending Developer ID signing, notarization, and clean-machine validation       |
-| Multi-agent orchestration and evaluation  | Architecture only                                                              |
-| OS-backed approval and enforced isolation | Research/prototype boundary only; no production integration                    |
-| Windows recording                         | Blocked on job-object supervision and private-store ACL validation             |
-| Replay/regression foundation              | Backend-only command-completion fingerprint evaluation; no command or AI rerun |
-| Synthetic transport contract              | Internal experiment verified; no HTTP/MCP/provider capture or production use   |
-| Regression fixture desktop workflow       | Implemented for controlled fingerprints; no historical command or AI rerun     |
-| Observable determinism analysis           | Implemented with explicit evidence gaps/thresholds; no causal or LLM guarantee |
-| Evidence and benchmark governance         | Implemented locally; hashes are not authorship and deletion never cascades     |
+| Area                                      | Status                                                                                                      |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Codex recorder                            | Implemented; real read-only Codex capture verified                                                          |
+| Durable SQLite history                    | Implemented with integrity and migration checks                                                             |
+| Snapshot capture, restore, and branch     | Implemented with bounded content-addressable storage                                                        |
+| macOS ARM64 desktop build                 | Implemented and launch-verified from a DMG                                                                  |
+| Signed/notarized distribution             | Pending Developer ID signing, notarization, and clean-machine validation                                    |
+| Multi-agent orchestration and evaluation  | Architecture only                                                                                           |
+| OS-backed approval and enforced isolation | Research/prototype boundary only; no production integration                                                 |
+| Windows recording                         | Blocked on job-object supervision and private-store ACL validation                                          |
+| Replay/regression foundation              | Backend-only command-completion fingerprint evaluation; no command or AI rerun                              |
+| Synthetic transport contract              | Internal experiment verified; no HTTP/MCP/provider capture or production use                                |
+| Regression fixture desktop workflow       | Implemented for controlled fingerprints; no historical command or AI rerun                                  |
+| Observable determinism analysis           | Implemented with explicit evidence gaps/thresholds; no causal or LLM guarantee                              |
+| Evidence and benchmark governance         | Implemented locally; hashes are not authorship and deletion never cascades                                  |
+| Signed benchmark exchange and trust       | Personal local trust implemented; no organization PKI                                                       |
+| macOS signing-key custody                 | Login-Keychain operational; per-sign user presence/hardware custody unavailable                             |
+| Release identity/user presence            | Configuration and native refusal verified; positive signed-build enforcement blocked on credentials/profile |
+| Authorized release-security acceptance    | Credential-neutral preflight verified; signed/native-positive/notarization tracks blocked                   |
 
-See the [implementation status index](docs/IMPLEMENTATION_STATUS.md) for milestone evidence and the [submission-build report](docs/IMPLEMENTATION_STATUS_SUBMISSION_BUILD.md) for the current DMG verification.
+See the [implementation status index](docs/IMPLEMENTATION_STATUS.md), the [Phases 1–11 comprehensive audit](docs/PHASES_01_11_COMPREHENSIVE_AUDIT.md), and the [submission-build report](docs/IMPLEMENTATION_STATUS_SUBMISSION_BUILD.md). The audit distinguishes code-fixed findings from native/manual and external release-security blockers.
 
 ## Architecture
 
@@ -47,9 +55,9 @@ React UI  →  Rust/Tauri host  →  Go engine  →  Codex CLI
                        private stdio
 ```
 
-- **UI:** React and TypeScript provide consent, recording, history, timeline, snapshot, fixture, analysis, and governance workflows.
+- **UI:** React and TypeScript provide consent, recording, history, timeline, snapshot, fixture, analysis, governance, and signed-exchange workflows.
 - **Host:** Rust/Tauri resolves the packaged engine, owns its lifecycle, and exposes typed commands to the UI.
-- **Engine:** Go owns recording, event normalization, SQLite persistence, snapshot/fixture/report/governance storage, analysis contracts, policy contracts, and process supervision.
+- **Engine:** Go owns recording, event normalization, SQLite persistence, snapshot/fixture/report/governance/exchange storage, cryptographic verification, analysis contracts, policy contracts, and process supervision.
 - **Adapters:** provider-specific parsing stays behind engine interfaces. Codex is the only implemented provider.
 
 Dependencies flow from UI to host to engine ports and adapters. Captured content is treated as untrusted, and historical commands are never executed while browsing a timeline.
@@ -116,6 +124,8 @@ Restore and Branch always materialize into a fresh private directory. Branching 
 Back up the complete application-data directory while ChronoSync is stopped before changing versions. Older engines refuse databases with newer schema versions; there is no destructive downgrade or automatic repair path.
 
 Benchmark datasets, lineage, and retention events are stored as bounded canonical private files. Retention expiration is informational; nothing is deleted automatically. Deletion requires native confirmation and refuses referenced objects. SHA-256 detects content equality/modification but does not prove who created or approved evidence.
+
+Signed exchange packages are store-only ZIP files that are parsed in memory and never extracted. Ed25519 signatures establish only that the corresponding key signed covered bytes. Local trust is explicit and separate; neither validity nor trust means that evidence is safe, correct, representative, or authorized for execution. New and migrated macOS signing seeds use the login Keychain; eligible unmigrated Phase 8 seeds remain plaintext private application-data files. Login-Keychain storage is not Secure Enclave, hardware-backed, non-extractable, or protected by per-sign user presence in the current build.
 
 ## Development checks
 

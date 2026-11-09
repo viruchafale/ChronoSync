@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "./App";
 import type {
@@ -88,11 +94,58 @@ it("loads persisted history in sequence and shows command detail", async () => {
   await user.click(rows[0]!);
   expect(await screen.findByText(/synthetic output/)).toBeTruthy();
   expect(screen.getByRole("status").textContent).toContain("completed");
+  expect(
+    screen
+      .getByRole("button", { name: /#1 command.completed/ })
+      .getAttribute("aria-pressed"),
+  ).toBe("true");
+  expect(screen.getByRole("button", { name: "Copy event ID" })).toBeTruthy();
+  expect(screen.getByRole("slider", { name: "Timeline width" })).toBeTruthy();
+});
+
+it("navigates empty workspaces and filters actual loaded execution history", async () => {
+  const user = userEvent.setup();
+  render(<App api={fixture()} />);
+  await screen.findByRole("button", { name: /completed · \/project/ });
+  await user.type(
+    screen.getByRole("textbox", { name: "Filter loaded executions" }),
+    "absent",
+  );
+  expect(
+    screen.queryByRole("button", { name: /completed · \/project/ }),
+  ).toBeNull();
+  await user.clear(
+    screen.getByRole("textbox", { name: "Filter loaded executions" }),
+  );
+  expect(
+    screen.getByRole("button", { name: /completed · \/project/ }),
+  ).toBeTruthy();
+  const nav = within(screen.getByRole("navigation"));
+  await user.click(nav.getByRole("button", { name: "Execution timeline" }));
+  expect(
+    screen.getByRole("button", { name: "Browse executions" }),
+  ).toBeTruthy();
+  await user.click(nav.getByRole("button", { name: "Security & settings" }));
+  expect(
+    screen.getByRole("heading", { name: "Security boundaries" }),
+  ).toBeTruthy();
+  expect(
+    screen.getByText(/does not perform a signed-release assessment/),
+  ).toBeTruthy();
+  await user.click(nav.getByRole("button", { name: "Overview" }));
+  expect(
+    screen.getByRole("button", { name: /completed · \/project/ }),
+  ).toBeTruthy();
 });
 it("requires explicit consent and sends the selected workspace/policy", async () => {
   const api = fixture({ list: vi.fn(async () => []) });
   const user = userEvent.setup();
   render(<App api={api} />);
+  await user.click(
+    within(screen.getByRole("navigation")).getByRole("button", {
+      name: "New capture",
+    }),
+  );
   const start = screen.getByRole("button", {
     name: "Start recording",
   }) as HTMLButtonElement;

@@ -175,7 +175,9 @@ describe("Analysis", () => {
     );
     await waitFor(() => expect(compare).toHaveBeenCalled());
     expect(compare.mock.calls[0]![0]).toEqual([runs[0]!.id, runs[1]!.id]);
-    expect(await screen.findByText("Evaluation: fail")).not.toBeNull();
+    expect(
+      await screen.findByRole("heading", { name: "Evaluation: fail" }),
+    ).not.toBeNull();
     expect(screen.getByText(/Causality: unknown/)).not.toBeNull();
     expect(screen.getByRole("table").textContent).toContain(
       "command.completed",
@@ -211,7 +213,9 @@ describe("Analysis", () => {
       screen.getByRole("button", { name: "Load historical reports" }),
     );
     fireEvent.click(await screen.findByRole("button", { name: "Open report" }));
-    expect(await screen.findByText("Evaluation: fail")).not.toBeNull();
+    expect(
+      await screen.findByRole("heading", { name: "Evaluation: fail" }),
+    ).not.toBeNull();
     fireEvent.click(
       screen.getByRole("button", { name: "Reevaluate preserved evidence" }),
     );

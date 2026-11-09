@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { SectionNav, Badge, CopyButton } from "./Workbench";
 import type { Run } from "../../../contracts/recorder";
 import { isActive } from "../../../contracts/recorder";
 import type {
@@ -25,11 +26,21 @@ export function Snapshots({
   const [branchID, setBranchID] = useState("");
   const [notice, setNotice] = useState("");
   const [reload, setReload] = useState(0);
+  const [pending, setPending] = useState<{
+    id: string;
+    branch: boolean;
+  } | null>(null);
+  const confirmation = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (pending) confirmation.current?.showModal();
+    else confirmation.current?.close();
+  }, [pending]);
   const generation = useRef(0);
   useEffect(() => {
     const token = ++generation.current;
     setBusy("Loading snapshots…");
     setConsent(false);
+    setPending(null);
     setBranchID("");
     setSnapshots([]);
     setBranches([]);
@@ -74,6 +85,13 @@ export function Snapshots({
   return (
     <section aria-label="Workspace snapshots">
       <h3>Workspace snapshots and branches</h3>
+      <SectionNav
+        items={[
+          ["snapshot-capture", "Capture"],
+          ["snapshot-history", "Snapshot history"],
+          ["branch-history", "Materialized workspaces"],
+        ]}
+      />
       <p>
         Capture reads current project bytes after recording has stopped; it does
         not reconstruct the workspace at an earlier event. Default exclusions
@@ -88,7 +106,7 @@ export function Snapshots({
       {error && <p role="alert">{error}</p>}
       {busy && <p aria-live="polite">{busy}</p>}
       {notice && <p>{notice}</p>}
-      <label>
+      <label id="snapshot-capture">
         Snapshot source
         <select
           disabled={!!busy}
@@ -146,45 +164,77 @@ export function Snapshots({
         Refresh snapshots
       </button>
       {!busy && snapshots.length === 0 && <p>No snapshots on this page.</p>}
-      <ul>
+      <ul id="snapshot-history" className="artifact-library">
         {snapshots.map((s) => (
           <li key={s.id}>
             <p>
-              {s.id} · {s.state} · {s.entries} entries · {s.omitted} omitted ·{" "}
-              {s.bytes} bytes {s.branch_id ? `· branch ${s.branch_id}` : ""}{" "}
-              {s.diagnostic}
+              <code>{s.id}</code> · <Badge value={s.state} /> · {s.entries}{" "}
+              entries · {s.omitted} omitted · {s.bytes} bytes{" "}
+              {s.branch_id ? `· branch ${s.branch_id}` : ""} {s.diagnostic}
             </p>
+            <CopyButton value={s.id} label="Copy snapshot ID" />
             <button
+              aria-label={`Verify ${s.id}`}
+              title={`Verify ${s.id}`}
               disabled={!!busy || s.state !== "committed"}
               onClick={() =>
                 void perform("Verifying snapshot…", () => api.validate(s.id))
               }
             >
-              Verify {s.id}
+              Verify
             </button>
             <button
+              aria-label={`Restore ${s.id}`}
+              title={`Restore ${s.id}`}
               disabled={!!busy || !consent || s.state !== "committed"}
-              onClick={() =>
-                void perform("Restoring workspace…", () =>
-                  api.materialize(s.id, false, consent),
-                )
-              }
+              onClick={() => setPending({ id: s.id, branch: false })}
             >
-              Restore {s.id}
+              Restore
             </button>
             <button
+              aria-label={`Branch ${s.id}`}
+              title={`Branch ${s.id}`}
               disabled={!!busy || !consent || s.state !== "committed"}
-              onClick={() =>
-                void perform("Preparing branch…", () =>
-                  api.materialize(s.id, true, consent),
-                )
-              }
+              onClick={() => setPending({ id: s.id, branch: true })}
             >
-              Branch {s.id}
+              Branch
             </button>
           </li>
         ))}
       </ul>
+      <dialog
+        ref={confirmation}
+        className="command-dialog"
+        aria-labelledby="snapshot-confirm-title"
+        onCancel={() => setPending(null)}
+      >
+        <h2 id="snapshot-confirm-title">
+          {pending?.branch ? "Create branch workspace" : "Restore snapshot"}
+        </h2>
+        <p>
+          Create a separate managed directory from snapshot{" "}
+          <code>{pending?.id}</code>. Source files stay unchanged; no commands
+          will execute.
+        </p>
+        <button autoFocus onClick={() => setPending(null)}>
+          Cancel
+        </button>
+        <button
+          className="primary"
+          disabled={!pending || !consent || !!busy}
+          onClick={() => {
+            if (!pending || !consent) return;
+            const action = pending;
+            setPending(null);
+            void perform(
+              action.branch ? "Preparing branch…" : "Restoring workspace…",
+              () => api.materialize(action.id, action.branch, consent),
+            );
+          }}
+        >
+          Confirm workspace creation
+        </button>
+      </dialog>
       {next && (
         <button
           disabled={!!busy}
@@ -203,7 +253,7 @@ export function Snapshots({
           More snapshots
         </button>
       )}
-      <h4>Materialized workspaces</h4>
+      <h4 id="branch-history">Materialized workspaces</h4>
       <ul>
         {branches.map((b) => (
           <li key={b.id}>

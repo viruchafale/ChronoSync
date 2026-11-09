@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SectionNav, CopyButton, Badge } from "./Workbench";
 import type { Run } from "../../../contracts/recorder";
 import type {
   FixtureRecord,
@@ -54,6 +55,12 @@ export function Replay({ api, run }: { api: ReplayAPI; run: Run | null }) {
   return (
     <section aria-labelledby="replay-heading">
       <h2 id="replay-heading">Regression fixtures</h2>
+      <SectionNav
+        items={[
+          ["fixture-library", "Fixture library"],
+          ["evaluation-heading", "Controlled evaluation"],
+        ]}
+      />
       <p>
         Fixtures contain inert fingerprints and sanitized metadata. Controlled
         evaluation never runs historical commands or contacts a provider.
@@ -109,58 +116,62 @@ export function Replay({ api, run }: { api: ReplayAPI; run: Run | null }) {
           </button>
         </>
       )}
-      {fixtures.length === 0 ? (
-        <p>No stored fixtures loaded.</p>
-      ) : (
-        <ul>
-          {fixtures.map((fixture) => (
-            <li key={fixture.id}>
-              <strong>{fixture.kind}</strong> · {fixture.interactions}{" "}
-              interactions · {fixture.bytes} bytes
-              <button
-                onClick={() =>
-                  void action(async () =>
-                    setInspected(await api.inspect(fixture.id)),
-                  )
-                }
-              >
-                Inspect
-              </button>
-              <button
-                onClick={() =>
-                  void action(async () => {
-                    const exported = await api.exportFixture(fixture.id);
-                    if (exported.exported) setMessage("Fixture exported.");
-                  })
-                }
-              >
-                Export…
-              </button>
-              <button
-                onClick={() =>
-                  void action(async () => {
-                    const deleted = await api.deleteFixture(fixture.id);
-                    if (deleted.deleted) {
-                      setMessage("Fixture deleted.");
-                      if (inspected?.id === fixture.id) setInspected(null);
-                      await refresh();
-                    }
-                  })
-                }
-              >
-                Delete…
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div id="fixture-library" className="artifact-library">
+        {fixtures.length === 0 ? (
+          <p>No stored fixtures loaded.</p>
+        ) : (
+          <ul>
+            {fixtures.map((fixture) => (
+              <li key={fixture.id}>
+                <strong>{fixture.kind}</strong> · {fixture.interactions}{" "}
+                interactions · {fixture.bytes} bytes
+                <button
+                  onClick={() =>
+                    void action(async () =>
+                      setInspected(await api.inspect(fixture.id)),
+                    )
+                  }
+                >
+                  Inspect
+                </button>
+                <button
+                  onClick={() =>
+                    void action(async () => {
+                      const exported = await api.exportFixture(fixture.id);
+                      if (exported.exported) setMessage("Fixture exported.");
+                    })
+                  }
+                >
+                  Export…
+                </button>
+                <button
+                  onClick={() =>
+                    void action(async () => {
+                      const deleted = await api.deleteFixture(fixture.id);
+                      if (deleted.deleted) {
+                        setMessage("Fixture deleted.");
+                        if (inspected?.id === fixture.id) setInspected(null);
+                        await refresh();
+                      }
+                    })
+                  }
+                >
+                  Delete…
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
       {inspected && (
         <section aria-label="Fixture inspection">
           <h3>Fixture inspection</h3>
           <p>
-            {inspected.id} · integrity {inspected.integrity} · format{" "}
+            <code>{inspected.id}</code> · integrity{" "}
+            <Badge value={inspected.integrity} /> · format{" "}
             {inspected.format_version}
           </p>
+          <CopyButton value={inspected.id} label="Copy fixture ID" />
           {inspected.warnings.map((warning) => (
             <p key={warning}>{warning}</p>
           ))}
