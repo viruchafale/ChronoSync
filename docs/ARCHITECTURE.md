@@ -1,5 +1,31 @@
 # Architecture
 
+## Developer workbench presentation
+
+The existing React feature modules are hosted by `Workbench`, a presentation shell with grouped navigation and a command palette. `App` retains recorder selection/query state; each feature keeps its existing typed API adapter. Navigation does not introduce IPC or backend capabilities. Sidebar density is a local UI preference; evidence and authorization stay in the existing engine/native paths. HTML confirmation adds a review step for snapshot materialization without replacing backend consent. See the [GUI overhaul report](GUI_OVERHAUL_REPORT.md) for screen mapping, tests and visual acceptance limitations.
+
+## Phases 1–11 audit hardening
+
+The audit changes no dependency direction or authority. It strengthens two existing boundaries: native release readiness/verifiers now bind exact identity/team and semantic signed plist fields, and all implemented engine IPC parameter objects now share duplicate/unknown/trailing-data refusal. The renderer still has no arbitrary signing or execution-authority input, and protected custody remains disabled without signed evidence.
+
+## Phase 10 release-identity boundary
+
+The production runtime remains the Phase 9 login-Keychain design. Phase 10 adds
+no renderer/engine signing authority. An isolated Rust test module constructs a
+data-protection Keychain generic-password item with
+`AccessibleWhenUnlockedThisDeviceOnly + USER_PRESENCE`; the actual unsigned
+host receives `errSecMissingEntitlement` and does not fall back.
+
+The external release pipeline renders TeamIdentifier-bound entitlements from a
+template, embeds an externally authorized profile, signs the Go sidecar first,
+then lets Tauri sign the hardened outer app. A post-build verifier checks the
+actual app/engine teams, identifiers, authorities, runtime flags, entitlements
+and profile. No credential or concrete TeamIdentifier resides in source.
+
+## Phase 11 release-acceptance orchestration
+
+Phase 11 adds build-time preflight and post-build A/B continuity validation, not a runtime service. Preflight reads public platform/tooling identity counts and external-file presence, emits typed blockers, and never chooses credentials. Strict bundle verification remains the gate before any native-positive harness. Because the host has zero valid signing identities, no candidate or runtime protected-custody path was created; the UI → host → engine architecture and Phase 9 production custody are unchanged.
+
 ## Completed Phase 6 evidence-analysis path
 
 `internal/analysis` reads integrity-checked stored history and snapshot metadata through narrow ports, hashes supported raw fields in memory, and produces versioned observations with explicit gaps. Its comparison/experiment/policy domain has no adapter, provider, network, supervisor, command launcher, restore or admission dependency. Canonical integrity-tagged reports live under private application data at `analysis/v1/reports`; no SQLite migration or history rewrite occurs.
@@ -136,3 +162,15 @@ The sidecar is built before Tauri dev/build using scripts/sidecar.mjs and packag
 `internal/governance` consumes the existing Phase 6 report repository through a narrow port and owns canonical benchmark datasets, explicit compatibility, immutable reevaluation lineage, append-only retention, bounded accounting, reference audit and non-cascading deletion. Private files live under `governance/v1`; no SQLite migration or Phase 5/6 format rewrite occurs.
 
 Engine 0.6.0 exposes additive `benchmark-governance-v1` methods. Tauri owns file selection and export/deletion confirmation; React receives typed identities and results, never private paths. Governance source directly imports only the analysis/model domain plus the Go standard library and contains no provider, adapter, network client, process launcher, supervisor, admission or approval call. Its existing analysis/storage dependency closure is broader, so this is code-boundary evidence rather than OS-level isolation. See [ADR-0012](decisions/ADR-0012-evidence-retention-and-benchmark-governance.md).
+
+## Completed Phase 8 signed-exchange path
+
+`internal/exchange` consumes only canonical report and benchmark repository ports. It owns personal Ed25519 identity generation/signing, public identity records, append-only trust/revocation, deterministic bounded store-only ZIP encoding, strict in-memory parsing, signature/provenance verification and idempotent import orchestration. It has no adapter, provider, process launcher, network, snapshot, supervisor, admission or approval call.
+
+Engine 0.7.0 exposes additive `benchmark-exchange-v1` methods over private stdio. Binary packages are base64 encoded under an 8 MiB package/12 MiB frame bound. Tauri owns paths and native confirmation; React sees only public identity/manifest/outcome data. The direct Go implementation uses standard-library Ed25519/ZIP; Rust directly uses already-locked base64 only. See [ADR-0013](decisions/ADR-0013-benchmark-exchange-trust-provenance.md).
+
+## Completed Phase 9 custody and recovery path
+
+Engine 0.8.0 adds `key-custody-recovery-v1` without changing protocol 1, identity v1, exchange v1 or SQLite migration 3. Go owns canonical one-use signing sessions, custody/migration metadata, strict trust audit and final verification. The Tauri host owns a narrow Rust Keychain/Ed25519 broker; React sees only backend/status/migration/audit results. Normal Keychain signing returns only a signature. Legacy migration alone moves a bounded already-engine-owned seed into zeroized native memory after confirmation.
+
+The tested backend is the macOS login Keychain. Data-protection Keychain plus per-item user presence returned missing-entitlement under the unsigned test binary and is not claimed. See [ADR-0014](decisions/ADR-0014-os-key-custody-trust-recovery.md).

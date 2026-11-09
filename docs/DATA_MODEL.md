@@ -1,5 +1,26 @@
 # Data model
 
+## Phase 9 custody and migration records — private files, SQLite unchanged
+
+Custody metadata is stored as strict canonical JSON under
+`exchange/v1/custody/<key-id>.json`. It records the unchanged Phase 8 key ID,
+backend, creation time and an `unchecked` status; only the native broker can
+probe current Keychain availability. It contains no seed, Keychain password,
+path or signing payload.
+
+Migration events are immutable canonical files under
+`exchange/v1/migration/<event-id>.json`. Each event binds one key ID to a
+consecutive revision, previous/current state, UTC timestamp, bounded reason and
+domain-separated integrity digest. `legacy_detected` is derived before the
+first durable event. Gaps, invalid transitions, noncanonical bytes, unknown
+fields and digest mismatches fail closed.
+
+Trust-event files retain their Phase 8 location and semantics but are now
+strictly checked for canonical bytes, identity existence, UTC timestamps,
+bounded reasons, revision/transition order and integrity on every inventory or
+audit. SQLite remains migration 3. Event v2, fixture v1, report/dataset formats
+and exchange package v1 are unchanged.
+
 ## Phase 6 observation/report v1 — private append-only files, SQLite unchanged
 
 Observation v1 retains source execution/high-water/version, bounded configuration labels, per-run ordered event identities and only SHA-256 fingerprints for available input/output/tool/request/response/workspace evidence. It includes committed snapshot manifest identities plus explicit missing/unsupported gaps. Raw command, output, item ID, workspace and changed paths are absent.
@@ -191,3 +212,17 @@ Limits: 256 KiB normalized event, 10,000 events and 32 MiB journal per run; adap
 Canonical benchmark envelopes are stored at `governance/v1/datasets/sha256/<sha256>.benchmark`. Dataset v1 has a stable 32-hex family ID, positive version, UTC creation time, stable sorted cases, resolved report/comparison/observation provenance, expected comparison status, supported/required evidence dimensions, `case-id-v1` compatibility and sorted provenance limitations. The outer digest is integrity/equality evidence, not authenticity or authorship. A family/version cannot map to different bytes.
 
 Lineage records at `governance/v1/lineage/<id>.json` bind exact dataset content/family/version, exact policy, sorted source report IDs, newly created result report IDs and an optional same-family parent. Retention records at `governance/v1/retention/<event-id>.json` are integrity-tagged append-only lifecycle revisions. The audit derives references and accounting from these bounded files. SQLite remains migration 3; Phase 5 fixture v1 and Phase 6 report v1 are unchanged.
+
+## Phase 8 identity, trust and exchange v1 — private files and portable ZIP, SQLite unchanged
+
+Public identities live at `exchange/v1/identities/public/<64-hex-key-id>.json`; private seed records at `exchange/v1/identities/private/<key-id>.json`; append-only trust events at `exchange/v1/trust/<event-id>.json`. Identity v1 fixes Ed25519, standard base64 keys, a domain-separated SHA-256 key ID, label/time and optional superseded key. Trust event revisions preserve untrusted/trusted/revoked transitions with integrity digests; revocation is terminal.
+
+Portable `.chronosync-exchange` packages contain canonical manifest/dataset/reports/signature entries under a store-only ZIP profile and are never extracted. The manifest is the signer-independent package identity source and records exact entry hashes/lengths, provenance inclusion/omission and privacy flags. The signature covers canonical identity and manifest; content bytes are transitively covered by signed hashes. SQLite remains migration 3 and all Phase 5–7 formats remain unchanged.
+
+## Phase 10 release identity — no durable model change
+
+Phase 10 adds credential-neutral build configuration, validation tooling and a test-only native access-control probe. It adds no SQLite table, migration, IPC method, public identity revision, key-ID rule, trust event, package entry or engine capability. The proposed protected-custody upgrade states are a design contract only and are not persisted or advertised. Phase 9 login-Keychain records remain the production source of signing custody until signed positive acceptance exists.
+
+## Phase 11 acceptance — no durable model change
+
+Preflight JSON is ephemeral command output with schema version 1, platform/deployment metadata, public identity counts, readiness and typed blockers. It is not stored by the product and contains no certificate name, team value or credential. Candidate continuity output is likewise external build evidence. No database, IPC, identity, trust, migration or package record changes.

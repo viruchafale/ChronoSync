@@ -19,6 +19,8 @@
     "desktop:build": "cd apps/desktop && tauri build --no-bundle",
     "check:docs": "node scripts/check-docs.mjs",
     "test:integration": "node scripts/integration.mjs",
+    "test:release-config": "node scripts/macos-release-identity-check.mjs && node scripts/macos-release-identity.mjs check",
+    "release:preflight": "node scripts/macos-release-identity.mjs preflight",
     "engine:sidecar": "node scripts/sidecar.mjs",
     "test:recorder": "node scripts/recorder-integration.mjs",
     "test:live": "node scripts/recorder-integration.mjs --live",

@@ -1,5 +1,52 @@
 # Security model
 
+## Phases 1–11 audit hardening
+
+The comprehensive audit closed two release false-readiness paths: preflight now binds the exact installed Developer ID identity to its TeamIdentifier, and signed metadata validation parses exact plist fields, requires one reviewed access group, rejects expired profiles and requires timestamped app/engine signatures. Historical timeline/snapshot IPC now rejects unknown parameters instead of silently discarding potential constraints. These are verifier/protocol hardenings only; they do not upgrade the unsigned build, enable protected custody or grant execution authority.
+
+## Phase 10 release identity and user-presence boundary
+
+Release configuration, entitlements and signatures are distinct evidence. The
+checked-in profile contains placeholders only and is never used by default
+builds. A candidate is acceptable only after actual Developer ID Application
+and TeamIdentifier checks, signed-entitlement/profile validation and native
+protected-item behavior. Current binaries are linker ad-hoc signed with no team
+or entitlements, and this Mac has no valid code-signing identity.
+
+The real data-protection Keychain probe uses a separate service plus
+`AccessibleWhenUnlockedThisDeviceOnly` and `USER_PRESENCE`; it fails closed with
+`-34018` in the current unsigned environment. LocalAuthentication or a native
+confirmation in front of the Phase 9 login item would be bypassable and is not
+implemented. No positive user-presence or signed-upgrade claim is made. See the
+[Phase 10 threat model](THREAT_MODEL_PHASE_10.md).
+
+## Phase 11 acceptance evidence boundary
+
+Phase 11 adds a non-sensitive readiness report and two-candidate continuity check. Readiness requires an operator-authorized identity, explicit team and profile inputs, but does not itself prove authorization or signing. The current zero-identity result blocks construction, positive prompts, migration, notarization and Gatekeeper acceptance. Structural, native-negative, signed, native-positive, manual and external-service evidence remain distinct; no lower class is promoted to a stronger guarantee. See the [Phase 11 threat model](THREAT_MODEL_PHASE_11.md).
+
+## Phase 9 macOS key-custody boundary
+
+New and successfully migrated personal Ed25519 seeds are stored as generic
+password data in the user's macOS login Keychain. This is OS-backed storage,
+not an opaque `SecKey`, Secure Enclave or hardware-backed key. Ed25519 seed
+bytes materialize briefly inside the trusted Rust host for signing and are
+zeroized afterward. They never enter React, TypeScript, exported packages,
+reports or normal Go signing IPC.
+
+The tested unsigned development binary cannot create the preferred
+data-protection/user-presence item: Security.framework returned
+`errSecMissingEntitlement` (`-34018`). The implemented login-Keychain path
+therefore does not enforce per-sign OS authentication and is not claimed to
+resist same-user malware controlling the trusted process. Windows and Linux
+custody return explicit unsupported outcomes.
+
+Legacy retirement occurs only after public-key equality and proof-signature
+verification. Missing keys are not reconstructed; rotation creates a distinct
+identity and inherits no trust; revocation remains terminal. Trust checks detect
+inconsistent local history, but coherent same-user rewrite or rollback remains
+outside the guarantee. No custody or trust result changes Phase 4 admission or
+authorizes execution. See the [Phase 9 threat model](THREAT_MODEL_PHASE_09.md).
+
 ## Phase 6 analysis boundary
 
 Analysis is a read-only consumer of recorded history/snapshot metadata plus a private append-only report writer. It does not execute an event, command, evaluator, agent or provider; use networking; restore a workspace; or enter policy/admission/approval. IPC accepts run/report identities and a bounded versioned policy, never paths or executable content. Renderer inputs are strictly decoded by the engine.
@@ -222,3 +269,9 @@ No network interception, external-response replay, seed control, worktree restor
 Benchmark and retention inputs are untrusted, bounded, strictly decoded and reference-validated. Governance has no command, agent, provider, network, adapter, supervisor, admission or approval path and cannot authorize execution. Re-evaluation operates only on preserved Phase 6 observations. Dataset, report and lineage deletion requires native confirmation, an explicit delete-enabled policy and a complete reference graph; no cascade or background expiration exists.
 
 Unkeyed SHA-256 detects changed canonical bytes and reveals equality, but does not prove authorship, authenticity, approval or causation. Same-user malicious software can read or replace local data and recompute hashes. The deletion intent and tombstone expose an interrupted cross-file operation but do not make it power-loss atomic. Native dialogs are user-intent affordances, not OS-backed authentication or a sandbox.
+
+## Phase 8 exchange and personal-trust boundary
+
+All exchange bytes and public identity metadata are hostile until archive, canonical JSON, content hash, benchmark/report semantic provenance and signature checks complete. Packages are bounded, store-only ZIP, never extracted, and refuse compression, links, special files, traversal, duplicate/unknown entries and authority-bearing unknown JSON fields. Trust is consulted only after cryptographic/semantic validation and cannot override invalidity. Valid untrusted packages require native confirmation.
+
+Ed25519 proves covered-content key possession only. Self-asserted labels are not legal/organizational identity. Local trust is not safety; revocation is not globally distributed. Plaintext seeds in `0600` files are vulnerable to same-user malware and backup disclosure and are not Keychain/Secure Enclave protection. Same-user attackers can also rewrite local trust history. Exchange has no provider/network/process/snapshot/admission/approval path and cannot authorize execution. See the [full threat model](THREAT_MODEL_PHASE_08.md).

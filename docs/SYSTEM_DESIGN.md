@@ -1,5 +1,32 @@
 # System design
 
+## Phase 9 key-custody, signing and migration flow
+
+```text
+React intent -> typed Tauri command -> native confirmation
+                                      |
+Go one-use exact-payload session -> Rust login-Keychain broker
+                                      |  retrieve seed briefly
+                                      |  Ed25519 sign + zeroize
+                                      v
+Go verifies signature -> unchanged Phase 8 package v1
+
+legacy seed -> durable migration pending -> Keychain import/proof
+            -> identity verified -> retirement pending -> file removal -> migrated
+```
+
+The renderer receives identity, custody and audit metadata only. It cannot submit
+an arbitrary signing payload, retrieve a seed or delete a key. Go remains the
+authority for canonical Phase 8 payloads, public identities, one-use signing
+sessions and final signature verification. Rust alone accesses the macOS login
+Keychain and holds seed bytes transiently in zeroized native memory.
+
+Keychain and filesystem updates are not one transaction. Append-only migration
+events expose each recoverable boundary; the legacy seed remains usable until
+public-key equality and a proof signature succeed. The current build does not
+enforce per-sign OS user presence, does not use Secure Enclave, and exposes no
+provider, command, replay, admission or execution-authority path.
+
 ## Phase 6 evidence comparison and report flow
 
 ```text
@@ -305,3 +332,40 @@ strict Phase 6 report/comparison references
 ```
 
 Retention expiration never schedules work, archive is metadata only, and deletion never cascades. Dataset/report/lineage references are resolved from integrity-checked canonical bytes before deletion. An intent/file-removal/tombstone sequence exposes rather than hides the cross-file crash window.
+
+## Phase 8 signing, verification and import flow
+
+```text
+private local seed + canonical public identity
+        -> Ed25519(domain + identity + manifest)
+governed benchmark + selected canonical reports
+        -> canonical manifest with exact hashes/privacy/provenance
+        -> deterministic store-only ZIP -> native exclusive export
+
+native bounded import -> ZIP structure/limits -> canonical hashes/contracts
+        -> semantic report/case provenance -> Ed25519 validity
+        -> local trust/revocation -> native confirmation where required
+        -> idempotent reports -> governed benchmark
+```
+
+Malformed, unsupported, invalid, revoked or incomplete-provenance packages cannot import. Valid untrusted is not invalid and requires explicit confirmation. Trust lookup cannot override earlier validation. Package content identity is signer-independent. No step restores a workspace, runs an evaluator/command/agent, contacts a provider/network, or changes Phase 4 authority.
+
+## Phase 10 release identity and protected-custody boundary
+
+The production data path remains Phase 9: Go creates one-use exact signing sessions, Rust retrieves the Ed25519 seed from the login Keychain, and Go verifies the returned signature. Phase 10 adds no renderer signing surface and no fallback labeled user-presence protected.
+
+The distribution design signs the engine first and the outer Tauri app second under one external Developer ID team. Only the outer host receives the app-specific Keychain access-group entitlement. A separate test-only Security.framework probe requests a data-protection generic-password item with `USER_PRESENCE`; the actual unsigned host fails closed with OSStatus `-34018`. The proposed same-key upgrade remains disabled until a signed host proves protected retrieval, unchanged public identity and an exact challenge signature. No database, IPC or package schema changes result.
+
+## Phase 11 acceptance flow
+
+```text
+public environment preflight
+  -> authorized identity/team/profile available?
+  -> no: typed blockers; stop signed/native-positive tracks
+  -> yes: isolated Candidate A -> strict app/engine verification
+          -> protected native acceptance -> disposable migration proof
+          -> isolated Candidate B -> strict continuity verification
+          -> separately authorized notarization/stapling/Gatekeeper
+```
+
+The current execution follows the `no` branch. Structural continuity tests do not create candidates or activate runtime behavior.

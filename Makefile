@@ -14,6 +14,7 @@ check: engine-format-check engine-lint engine-test engine-build
 	npm test
 	npm run build
 	npm run check:docs
+	npm run test:release-config
 	npm run test:integration
 	npm run test:recorder
 

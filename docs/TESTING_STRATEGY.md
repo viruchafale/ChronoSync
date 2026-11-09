@@ -1,5 +1,45 @@
 # Testing strategy
 
+## Phases 1–11 comprehensive re-audit
+
+The 2026-11-04 audit reruns the entire Go race suite uncached, both full gates, focused real disposable Keychain tests, opt-in 100k timeline and snapshot workloads, Linux/Windows engine cross-builds, release preflight/configuration tests, module/dependency checks and immutable-DMG verification. The acceptance-closure pass reruns both full gates and adds governed-deletion tests for interruption before removal and after removal/before tombstone, plus SQLite logical-capacity rollback and integrity coverage. Focused regressions also cover exact release identity/team selection, semantic entitlement/profile validation and strict legacy IPC parameters. Native GUI launch smoke is recorded separately from workflow acceptance; the latter remains manual. See the [matrix](PHASES_01_11_AUDIT_MATRIX.md), [ledger](PHASES_01_11_REMEDIATION_LEDGER.md), [closure report](PHASES_01_11_ACCEPTANCE_CLOSURE_REPORT.md) and [manual checklist](NATIVE_GUI_ACCEPTANCE_CHECKLIST.md).
+
+## Phase 10 release identity and user-presence acceptance
+
+Node structural tests validate TeamIdentifier refusal/rendering, release
+overlay invariants, code-signature parsing and fail-closed sidecar signing. Rust
+tests validate the closed authorization outcome mapping and malformed-request
+refusal. A separately invoked actual Security.framework test asserts the exact
+missing-entitlement outcome in the unsigned context.
+
+These are not positive user-presence evidence. Success/cancel/deny prompt
+behavior, same-key protected migration, signed update continuity, notarization,
+Gatekeeper and manual GUI acceptance require an authorized Developer ID build
+and remain blocked. Existing Phase 8/9 exchange, migration, trust, UI and native
+bridge suites provide regression evidence without provider or historical-command execution.
+
+## Phase 11 authorized release acceptance
+
+Phase 11 adds release-preflight and candidate-continuity tests. Synthetic identity-list/signature metadata exercises parsers and mismatch refusal only. The actual preflight is environment evidence but not signed-build evidence. Positive protected signing requires a strictly verified candidate and actual prompt success/cancel/deny; migration requires a disposable same-key workflow; notarization and Gatekeeper require separate external/manual results. With zero valid signing identities, these tracks are reported blocked. Existing portable and native gates remain the available regression authority.
+
+## Phase 9 custody and recovery acceptance
+
+Go race tests exercise unchanged identity/package compatibility, exact one-use
+signing sessions, legacy migration transitions, restart/idempotency,
+concurrency, invalid seeds, key mismatch, corruption, revocation and trust
+audit refusal using disposable stores. Rust tests exercise the narrow broker
+with denial, missing, malformed, conflicting and unsupported outcomes. React
+component tests cover explicit migration, custody checks, trust audit and
+visible native-command errors.
+
+The real macOS test creates a disposable login-Keychain item, retrieves it,
+signs/verifies and deletes it. It is ignored by the default suite and run
+explicitly because it touches the user's Keychain. Attempted data-protection/
+user-presence variants failed with `-34018`; those failures are platform
+evidence, not passes. Native confirmation automation, real power-loss at every
+cross-store boundary, account/device migration and cross-platform custody
+remain unverified. No test calls a provider or executes a historical command.
+
 ## Phase 6 determinism-analysis acceptance
 
 Pure Go race tests cover identical, changed-output, missing, additional, reordered, workspace-divergent, incomplete, unsupported and multiple-observation datasets; hash-only extraction; explicit no-causality findings; threshold/incomparable behavior; report reevaluation, integrity refusal and restart. IPC integration creates disposable real event histories, persists a report and revised-policy report, then reopens both after restart. React tests exercise real selection/submission, aligned divergence/evidence quality, historical loading and reevaluation. A source audit forbids provider, HTTP, process-launch, supervisor and production-adapter imports; the application service intentionally consumes existing storage/snapshot evidence ports and private report files. Native checks compile and test only the bridge/build boundary; native window interaction remains separate acceptance evidence.
@@ -138,3 +178,9 @@ The original journal tests were relocated unchanged to the legacy package becaus
 Governance unit/race tests cover canonical creation/import/export, duplicate convergence, family/version conflict, unsupported/corrupt/missing references, added/missing/changed compatibility, policy reevaluation, immutable lineage, accounting, damage/temporary files, explicit lifecycle, referenced deletion refusal, leaf-to-root deletion, restart and concurrent import. IPC tests use disposable real Phase 6 reports and reject unknown authority fields. React tests cover accounting/lineage display, compatibility detail and visible reference refusal; locked offline Rust checks compile native dialogs and commands.
 
 The test suite never runs a historical command, provider or network client. Native dialog automation, real power loss/disk full, hostile same-user races, OS-level egress denial and cross-platform runtime behavior remain separate unverified evidence.
+
+## Phase 8 signed-exchange acceptance
+
+Focused race tests include RFC 8032 Ed25519 vector 1, local identity/rotation, trusted/untrusted/revoked outcomes, signature/content tampering, unsupported algorithms/versions, restart persistence, omitted/mismatched provenance, deterministic re-signing content identity, interrupted/concurrent imports and strict package bounds. Adversarial archive tests reject duplicate/traversal/symlink/compressed/oversized/excess-entry packages plus malformed, duplicate-key and unknown-field manifests.
+
+IPC integration builds real Phase 6 reports and a Phase 7 dataset in one disposable store, exports/signs, inspects as untrusted in a separate clean store, requires explicit consent, imports canonical reports/dataset, persists trust across restart and independently re-signs the same content. React tests cover explicit inclusions, validity/trust separation, privacy display and trust/revocation actions. Native dialogs remain compile-tested rather than GUI-automated.
