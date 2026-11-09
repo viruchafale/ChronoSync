@@ -1,5 +1,68 @@
 # Changelog
 
+## 2026-11-07 — Developer workbench UI overhaul
+
+- Added a grouped dark workbench shell, persistent sidebar density, command palette, execution search, split timeline inspector and exact evidence copy actions.
+- Applied shared design tokens, section navigation, status badges and comparison layout across existing capture, snapshot, replay, analysis, governance and exchange workflows.
+- Added snapshot restore/branch confirmation and frontend regression coverage while preserving backend contracts and existing consent/security boundaries.
+- Added a separate inventory, status and consolidated report. Browser review is partial; native and exact-size visual acceptance remain open. No Phase 12, bundle or DMG.
+
+## 2026-11-06 — Acceptance fault-coverage continuation
+
+- Added the complementary governed-deletion interruption regression after physical removal but before the durable tombstone; audit exposes `PENDING_DELETION` and retry completes idempotently.
+- Added disposable SQLite logical-capacity exhaustion coverage proving rejected event writes roll back atomically and leave `quick_check` clean.
+- Kept real ENOSPC, fsync and physical power-loss acceptance manual; no bundle, DMG, credential, provider, protocol, migration or production behavior changed.
+
+## 2026-11-05 — Remaining Phases 1–11 acceptance closure
+
+- Confirmed the current no-bundle native executable launches and registers with LaunchServices, while honestly retaining manual GUI status because no automation surface was exposed and no workflow was clicked.
+- Added deterministic governed-deletion interruption coverage for durable pending intent, retained object/audit visibility, retry completion and idempotency; physical power-loss/disk-full acceptance remains manual.
+- Re-ran portable and native no-bundle gates, release preflight, identity inventory and protected-DMG verification; zero valid signing identities keep signed protected/notarized acceptance externally blocked.
+- Added a separate acceptance-closure status/report and updated the matrix, ledger, manual checklist and testing evidence without starting Phase 12 or creating a bundle/DMG.
+
+## 2026-11-04 — Phases 1–11 comprehensive audit remediation
+
+- Bound release preflight readiness to the exact installed Developer ID identity and matching TeamIdentifier without exposing certificate names.
+- Replaced signed-entitlement/profile substring checks with parsed exact fields, single reviewed access group, future profile expiration and timestamped app/engine requirements.
+- Hardened legacy timeline/snapshot IPC parameters to reject duplicate, unknown and trailing fields consistently with newer services.
+- Refreshed 100k timeline and snapshot workload evidence, cross-builds and security boundary audits.
+- Added a criterion-level audit matrix, prioritized remediation ledger, native GUI checklist, separate status and consolidated report; external/manual blockers remain explicit.
+
+## 2026-11-04 — Phase 11 credential-neutral release acceptance
+
+- Added a non-sensitive release preflight reporting platform, identity counts and typed external prerequisites without selecting or printing certificate details.
+- Added structural Candidate A/B continuity validation after strict signed-bundle verification.
+- Recorded the actual zero-identity environment and kept signed construction, positive user presence, migration, notarization and Gatekeeper acceptance blocked.
+- Added the Phase 11 plan, threat/acceptance guides, seven separate milestone reports and consolidated evidence report without changing protocols, packages, custody or the submitted DMG.
+
+## 2026-11-04 — Phase 10 release identity and user-presence readiness
+
+- Added a credential-neutral hardened-runtime Tauri release overlay, generated
+  TeamIdentifier entitlement template, external provisioning-profile slot and
+  fail-closed nested sidecar signing hook.
+- Added structural/post-build validation for Developer ID authority, stable app
+  and engine identifiers, matching teams, signed entitlements and profile.
+- Added a test-only real data-protection Keychain `USER_PRESENCE` probe and
+  closed typed authorization outcomes; the unsigned host returns exact
+  `errSecMissingEntitlement` and production Phase 9 signing remains unchanged.
+- Documented same-key upgrade semantics without enabling migration or deleting
+  any key. Actual signing, prompt success/cancel/deny, notarization and upgrade
+  continuity remain blocked because no certificate/profile is available.
+
+## 2026-11-03 — Phase 9A–9F OS-backed key custody and trust recovery
+
+- Added a narrow Rust macOS login-Keychain Ed25519 broker, one-use Go signing
+  sessions and unchanged Phase 8 package/key/signature compatibility.
+- Added explicit restart-safe legacy-seed migration, custody/migration metadata,
+  key-loss/rotation semantics and strict trust-history audit/refusal behavior.
+- Added engine 0.8.0 `key-custody-recovery-v1`, additive typed native/UI
+  operations and disposable Go/Rust/React plus actual macOS Keychain tests.
+- Recorded stronger data-protection/user-presence as blocked by
+  `errSecMissingEntitlement`; no hardware, per-sign-auth, cross-platform,
+  same-user-malware or execution-authority claim is made.
+- Preserved SQLite migration 3, protocol 1, Phase 5–8 formats and the submitted
+  DMG; no provider, network, historical command, bundle, commit or publication.
+
 ## 2026-10-31 — Phase 6A–6F observable determinism analysis
 
 - Added versioned hash-only observations over stored event/snapshot evidence with explicit missing and unsupported dimensions.
@@ -132,3 +195,31 @@ Added closed engine-owned capability-provider registration, identity/target/scop
 - Added immutable policy/dataset evaluation lineage, append-only retention, bounded accounting, damage/reference audit and confirmed non-cascading deletion.
 - Added engine 0.6.0 `benchmark-governance-v1`, typed Rust/TypeScript boundaries and a working React governance interface.
 - Added race/restart/corruption/concurrency/reference-refusal tests and ADR-0012 without a SQLite migration, provider call, command rerun, admission change or DMG rebuild.
+
+## 2026-11-01 — Phase 8A–8F signed benchmark exchange and personal trust
+
+- Added personal Ed25519 identities, engine-only local seeds, explicit rotation links and append-only trusted/untrusted/revoked history without a new cryptographic dependency.
+- Added deterministic bounded store-only ZIP packages with signed canonical manifests, exact report/dataset provenance, privacy declarations and signer-independent content IDs.
+- Added strict archive/signature/provenance verification, typed trusted/untrusted/invalid/revoked/unsupported/incomplete outcomes and native-confirmed untrusted imports/trust changes.
+- Added engine 0.7.0 `benchmark-exchange-v1`, bounded base64 private-stdio transfer, native dialogs, typed TypeScript and a working React exchange/trust interface.
+- Added RFC vector, tampering, archive-adversarial, clean-machine, restart, rotation, revocation, concurrency and source-boundary tests without a SQLite migration, provider/network/command path, admission change or DMG rebuild.
+
+# 2026-11-08 — UI visual refinement and browser acceptance
+
+- Visually exercised all nine workbench destinations at 1440×900 and 1280×800 plus the compact 1024×768 layout with an isolated read-only synthetic harness.
+- Tightened page/timeline density, long-value/table wrapping, semantic states, snapshot actions, dialog bounds and responsive filters; reset document scroll on destination changes.
+- Retained actual before/after and populated screenshots with explicit browser/native/blocker classifications in a separate status and report. No backend, IPC, dependency, bundle, DMG, commit or publication change.
+
+## 2026-11-08 — Final GUI acceptance closure
+
+- Restored the dedicated Chrome automation binding and added a genuine Security capture at 1024×768; Security now passes visual inspection at 1440×900, 1280×800 and 1024×768.
+- Inspected all 36 earlier retained PNGs, preserving historical defect and diagnostic captures with honest classifications; no new repository-level visual defect required a source change.
+- Reproduced the native automation boundary: the current no-bundle executable launches but is absent from inventory and rejects path/bundle-ID binding. Added a practical manual procedure without rebuilding the protected DMG.
+- Added separate closure status/report documentation. No Phase 12, dependency, backend, IPC, release artifact, commit or publication work was started.
+
+## 2026-11-08 — Disposable native GUI acceptance candidate
+
+- Built a separate app-only ChronoSync bundle from the current dirty working tree into `/private/tmp/chronosync-native-gui-acceptance-20261108`, preserving the stable identifier and normal security behavior.
+- Recorded bundle/version/executable/sidecar identity, ad-hoc signature limitations, strict-verification failure and protected-DMG hash without signing, notarizing, publishing or rebuilding the submitted artifact.
+- Launch-smoked the discoverable native app and bundled private-stdio engine, then quit without opening dialogs, file pickers or Keychain workflows.
+- Added a dedicated human checklist for launch, native export/import cancellation, focus/accessibility, authorized disposable Keychain work, lifecycle and bounded recovery testing. Positive protected user presence remains blocked for the ad-hoc candidate.
