@@ -22,7 +22,7 @@ for (const file of required)
 const plans = readdirSync("docs/phases").filter((n) =>
   /^PHASE-\d{2}-.*\.md$/.test(n),
 );
-if (plans.length !== 8) throw new Error("Expected eight phase plans");
+if (plans.length !== 12) throw new Error("Expected twelve phase plans");
 for (const file of plans) {
   const text = readFileSync(`docs/phases/${file}`, "utf8");
   for (let i = 1; i <= 16; i++)
@@ -49,5 +49,5 @@ for (const file of new Set(files)) {
   }
 }
 console.log(
-  "PASS: required documents, eight structured phase plans, and local Markdown links",
+  "PASS: required documents, twelve structured phase plans, and local Markdown links",
 );

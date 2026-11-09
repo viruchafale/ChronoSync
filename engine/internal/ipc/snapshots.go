@@ -4,7 +4,6 @@ import (
 	"chronosync.local/engine/internal/recorder"
 	"chronosync.local/engine/internal/snapshot"
 	"context"
-	"encoding/json"
 	"time"
 )
 
@@ -15,19 +14,19 @@ func snapshotDispatch(req Request, r *recorder.Recorder, s *snapshot.Service) (a
 	switch req.Method {
 	case "snapshot.capture":
 		var p snapshot.CaptureSpec
-		if json.Unmarshal(req.Params, &p) != nil {
+		if strictRequest(req.Params, &p) != nil {
 			return nil, bad()
 		}
 		return r.WhileIdle(func() (any, error) { return s.Capture(ctx, p) })
 	case "snapshot.list":
 		var p snapshot.Query
-		if json.Unmarshal(req.Params, &p) != nil {
+		if strictRequest(req.Params, &p) != nil {
 			return nil, bad()
 		}
 		return s.Repo.Snapshots(ctx, p)
 	case "branch.list":
 		var p snapshot.Query
-		if json.Unmarshal(req.Params, &p) != nil {
+		if strictRequest(req.Params, &p) != nil {
 			return nil, bad()
 		}
 		return s.Repo.Branches(ctx, p)
@@ -35,7 +34,7 @@ func snapshotDispatch(req Request, r *recorder.Recorder, s *snapshot.Service) (a
 		var p struct {
 			ID string `json:"id"`
 		}
-		if json.Unmarshal(req.Params, &p) != nil {
+		if strictRequest(req.Params, &p) != nil {
 			return nil, bad()
 		}
 		if req.Method == "branch.get" {
@@ -48,7 +47,7 @@ func snapshotDispatch(req Request, r *recorder.Recorder, s *snapshot.Service) (a
 		return record, err
 	case "snapshot.restore", "branch.create":
 		var p snapshot.MaterializeSpec
-		if json.Unmarshal(req.Params, &p) != nil {
+		if strictRequest(req.Params, &p) != nil {
 			return nil, bad()
 		}
 		kind := "restore"
@@ -57,6 +56,10 @@ func snapshotDispatch(req Request, r *recorder.Recorder, s *snapshot.Service) (a
 		}
 		return r.WhileIdle(func() (any, error) { return s.Materialize(ctx, p, kind) })
 	case "object.inventory":
+		var p struct{}
+		if strictRequest(req.Params, &p) != nil {
+			return nil, bad()
+		}
 		return s.Inventory(ctx)
 	default:
 		return nil, bad()

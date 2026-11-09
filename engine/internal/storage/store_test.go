@@ -414,6 +414,41 @@ func TestFailedSQLWriteAndFutureSchema(t *testing.T) {
 		t.Fatal("future schema accepted")
 	}
 }
+
+func TestDatabaseCapacityFaultRollsBackEvent(t *testing.T) {
+	s, r, _ := fixture(t)
+	var pages int
+	if err := s.db.QueryRow(`PRAGMA page_count`).Scan(&pages); err != nil || pages < 1 {
+		t.Fatal("database page inventory", pages, err)
+	}
+	var limit int
+	if err := s.db.QueryRow(fmt.Sprintf(`PRAGMA max_page_count=%d`, pages)).Scan(&limit); err != nil || limit != pages {
+		t.Fatal("database page limit", limit, err)
+	}
+
+	committed := 0
+	var capacityErr error
+	for n := 1; n <= 100; n++ {
+		next := event(r, n)
+		next.Payload.Message = strings.Repeat("x", 7000)
+		if capacityErr = s.Append(next); capacityErr != nil {
+			break
+		}
+		committed++
+	}
+	if capacityErr == nil {
+		t.Fatal("database capacity limit did not reject a bounded write")
+	}
+	page, err := s.QueryEvents(context.Background(), EventQuery{ID: r.ID, Limit: 100})
+	if err != nil || page.Count != int64(committed) || len(page.Events) != committed || page.Run.LastSequence != strconv.Itoa(committed) {
+		t.Fatal("capacity failure was not atomic", committed, page, err)
+	}
+	var integrity string
+	if err = s.db.QueryRow(`PRAGMA quick_check`).Scan(&integrity); err != nil || integrity != "ok" {
+		t.Fatal("database integrity after capacity failure", integrity, err)
+	}
+}
+
 func TestRunPaginationAndSearchInjection(t *testing.T) {
 	s, r, _ := fixture(t)
 	for range 4 {
